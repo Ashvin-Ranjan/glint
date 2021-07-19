@@ -1,0 +1,5 @@
+# Force line ending normalization so that Git autoconverts to line feeds (\n).
+* text=auto
+
+# Reclassify .n files as N for Linguist
+*.n linguist-language=N

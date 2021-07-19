@@ -1,0 +1,26 @@
+import request
+import json
+import FileIO
+
+let main = [] -> cmd[()] {
+  let possibleToken = FileIO.read(".token")!
+  let authHeader = mapFrom([
+    (if let <yes token> = possibleToken { ("Authorization", "token " + token) } else { ("", "") })
+  ])
+
+  let pullResponse = request.get("https://api.github.com/repos/nbuilding/N-lang/pulls?state=all", mapFrom([]))!
+  print(pullResponse.return)
+  if let <array pulls> = pullResponse.return {
+    for (pull in pulls) {
+      if let <object pullData> = pull {
+        if let <yes <boolean draft>> = pullData["draft"] {
+          if not draft {
+            print(pullData)
+          }
+        }
+      }
+    }
+  }
+}
+
+let pub out = main()
