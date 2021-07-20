@@ -1,0 +1,83 @@
+import json
+
+alias reviewData = {
+  timesRequested: int
+  timesResponded: int
+  averageResponseTime: int
+}
+
+alias configData = {
+  repoAuthor: str
+  repoName: str
+  export: bool
+}
+
+let pub parseConfig = [data:json.value] -> configData {
+  let out = {
+    repoAuthor: "nbuilding"
+    repoName: "N-lang"
+    export: false
+  }
+
+  if let <object jsonData> = data {
+    if let <yes <string author>> = jsonData["repoAuthor"] {
+      var out = {
+        ..out
+        repoAuthor: author
+      }
+    }
+
+    if let <yes <string name>> = jsonData["repoName"] {
+      var out = {
+        ..out
+        repoName: name
+      }
+    }
+
+    if let <yes <boolean exp>> = jsonData["export"] {
+      var out = {
+        ..out
+        export: exp
+      }
+    }
+  }
+
+  return out
+}
+
+let pub reviewDataToJson = [data:map[str, reviewData]] -> json.value {
+  let jsonedData = []
+
+  for (name, d in entries(data)) {
+    var jsonedData = jsonedData
+                              |> append(
+                                (name, json.object(mapFrom([
+                                  ("timesRequested", json.number(toFloat(d.timesRequested))),
+                                  ("timesResponded", json.number(toFloat(d.timesResponded))),
+                                  ("averageResponseTime", json.number(toFloat(d.averageResponseTime))),
+                                ])))
+                              )
+  }
+
+  return json.object(mapFrom(jsonedData))
+}
+
+let pub convertTextToBytes = [data:str] -> list[int] {
+  return range(0, len(data), 1)
+                              |> filterMap([i:int] -> maybe[int] {
+                                if let <yes code> = data[i] {
+                                  return yes(charCode(code))
+                                }
+
+                                return none
+                              })
+}
+
+let pub multString = [i:int s:str] -> str {
+  let out = ""
+  for (j in range(0, i, 1)) {
+    var out = out + s
+  }
+
+  return out
+}

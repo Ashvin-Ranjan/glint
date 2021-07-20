@@ -2,50 +2,11 @@ import request
 import json
 import FileIO
 
-alias reviewData = {
-  timesRequested: int
-  timesResponded: int
-  averageResponseTime: int
-}
-
-let reviewDataToJson = [data:map[str, reviewData]] -> json.value {
-  let jsonedData = []
-
-  for (name, d in entries(data)) {
-    var jsonedData = jsonedData
-                              |> append(
-                                (name, json.object(mapFrom([
-                                  ("timesRequested", json.number(toFloat(d.timesRequested))),
-                                  ("timesResponded", json.number(toFloat(d.timesResponded))),
-                                  ("averageResponseTime", json.number(toFloat(d.averageResponseTime))),
-                                ])))
-                              )
-  }
-
-  return json.object(mapFrom(jsonedData))
-}
-
-let convertTextToBytes = [data:str] -> list[int] {
-  return range(0, len(data), 1)
-                              |> filterMap([i:int] -> maybe[int] {
-                                if let <yes code> = data[i] {
-                                  return yes(charCode(code))
-                                }
-
-                                return none
-                              })
-}
-
-let multString = [i:int s:str] -> str {
-  let out = ""
-  for (j in range(0, i, 1)) {
-    var out = out + s
-  }
-
-  return out
-}
+let utils = imp "./utils.n"
 
 let main = [] -> cmd[()] {
+  let config = utils.parseConfig(json.parse(FileIO.read("config.json")! |> default("")))
+
   let possibleToken = FileIO.read(".token")!
   let authHeader = mapFrom([
     (if let <yes token> = possibleToken { ("Authorization", "token " + token) } else { ("", "") })
@@ -53,10 +14,10 @@ let main = [] -> cmd[()] {
 
   let reviewEntries = mapFrom([("unknown", { timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })])
 
-  let pullResponse = request.get("https://api.github.com/repos/microsoft/typescript/pulls?state=all&per_page=100", authHeader)!
+  let pullResponse = request.get("https://api.github.com/repos/" + config.repoAuthor + "/" + config.repoName + "/pulls?state=all&per_page=100", authHeader)!
 
   if pullResponse.code /= 200 {
-    print("Incorrect Authorization")
+    print("Incorrect Authorization or Repo Does not Exist")
     return ()
   }
 
@@ -119,15 +80,15 @@ let main = [] -> cmd[()] {
           }
         }
       }
-      printWithEnd("\r", "[" + multString(index, "#") + multString(100 - index, " ") + "] " + intInBase10(index) + "%")
+      printWithEnd("\r", "[" + utils.multString(index, "#") + utils.multString(100 - index, " ") + "] " + intInBase10(index) + "%")
       var index = index + 1
     }
-    print("[" + multString(100, "#") + "] 100%")
+    print("[" + utils.multString(100, "#") + "] 100%")
   }
 
-  let jsonData = reviewDataToJson(reviewEntries)
+  let jsonData = utils.reviewDataToJson(reviewEntries)
 
-  let binaryJsonData = convertTextToBytes(json.stringify(jsonData))
+  let binaryJsonData = utils.convertTextToBytes(json.stringify(jsonData))
 
   let _ = FileIO.write("export.json", json.stringify(jsonData))!
 
@@ -149,7 +110,7 @@ let main = [] -> cmd[()] {
       }
 
       // Development purposes: will move back later
-      let mainPage = convertTextToBytes(FileIO.read("template.html")! |> default("uh oh! The template.html file was removed!"))
+      let mainPage = utils.convertTextToBytes(FileIO.read("template.html")! |> default("uh oh! The template.html file was removed!"))
 
       return {
         responseCode: 200
