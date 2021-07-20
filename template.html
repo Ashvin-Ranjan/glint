@@ -2,10 +2,95 @@
 <html>
   <header>
     <title>GLINT</title>
+    <style>
+      .card {
+        display: flex;
+        flex-direction: column;
+        border-radius: 2em;
+        height: 10em;
+        width: 10em;
+        box-shadow: 0 0.36em 2em rgb(52 67 77 / 20%);
+        background-color: white;
+        position: relative;
+        font-size: 2em;
+        margin-left: 1em;
+        margin-bottom: 3em;
+      }
+
+      .chart-card {
+        border-radius: 2em;
+        box-shadow: 0 0.36em 2em rgb(52 67 77 / 20%);
+        background-color: white;
+        font-size: 2em;
+        position: relative;
+        transform: scale(0.9);
+      }
+
+      .stats-area {
+        display: inline-flex;
+        flex-wrap: wrap;
+        width: 100%;
+      }
+
+      .stats-title {
+        color: black;
+        font-family: Arial, Helvetica, sans-serif;
+        text-align: center;
+        font-size: 300%;
+        margin-bottom: 5%;
+      }
+
+      .percentages {
+        height: 50%;
+        display: inline-flex;
+        overflow: hidden;
+        border-radius: 2em 2em 0 0;
+      }
+
+      .top-percent {
+        background-color: #dc3913;
+        color: white;
+        background-attachment:fixed;
+        text-align: center;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .bottom-percent {
+        background-color: #3466cb;
+        color: white;
+        background-attachment:fixed;
+        text-align: center;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .info-area {
+        margin: 5%;
+        color: black;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: medium;
+      }
+
+      .avatar-area {
+        flex: auto;
+        display: inline-flex;
+        align-content: center;
+        margin-bottom: 5%;
+      }
+
+      .avatar {
+        border-radius: 50%;
+        margin-right: 5%;
+        width: 40px;
+        height: 40px;
+        border: 1px solid black;
+      }
+    </style>
   </header>
   <body>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <div id="chart_div" style="height: 100vh;"></div>
+    <article id="chart_div" class="chart-card" style="height: 100vh"></article>
+    <h1 class="stats-title">Per-User Stats</h1>
+    <div id="stats_div" class="stats-area"></div>
     <script>
       const loadAndDrawData = () => {
       fetch("http://localhost:8080/data").then(
@@ -38,6 +123,33 @@
 
               const chart = new google.visualization.BarChart(document.getElementById('chart_div'));
               chart.draw(data, options); 
+
+              let inner = "";
+
+              for (const key of Object.keys(value)) {
+                if (value[key].timesRequested === 0) {
+                  continue;
+                }
+                inner += `
+                <article class="card">
+                  <div class="percentages">
+                    <div style="width: ${Math.floor(((value[key].timesRequested - value[key].timesResponded)/value[key].timesRequested) * 100)}%;" class="top-percent">
+                    </div>
+                    <div style="width: ${Math.round((value[key].timesResponded/value[key].timesRequested) * 100)}%;" class="bottom-percent">
+                    </div>
+                  </div>
+                  <div class="info-area">
+                    <div class="avatar-area">
+                      <img class="avatar" src="https://github.com/${key}.png?size=40"></img>
+                      <b>${key}</b>
+                    </div> <br>
+                    Request Response Percentage: ${Math.round((value[key].timesResponded/value[key].timesRequested) * 100)}%
+                  </div>
+                </article>
+                `;
+              }
+
+              document.getElementById("stats_div").innerHTML = inner;
             })  
           }
         )
