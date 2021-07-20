@@ -36,6 +36,15 @@ let convertTextToBytes = [data:str] -> list[int] {
                               })
 }
 
+let multString = [i:int s:str] -> str {
+  let out = ""
+  for (j in range(0, i, 1)) {
+    var out = out + s
+  }
+
+  return out
+}
+
 let main = [] -> cmd[()] {
   let possibleToken = FileIO.read(".token")!
   let authHeader = mapFrom([
@@ -52,6 +61,8 @@ let main = [] -> cmd[()] {
   }
 
   print("Aggregating data")
+
+  let index = 0
 
   if let <array pulls> = pullResponse.return {
     for (pull in pulls) {
@@ -108,7 +119,10 @@ let main = [] -> cmd[()] {
           }
         }
       }
+      printWithEnd("\r", "[" + multString(index, "#") + multString(100 - index, " ") + "] " + intInBase10(index) + "%")
+      var index = index + 1
     }
+    print("[" + multString(100, "#") + "] 100%")
   }
 
   let jsonData = reviewDataToJson(reviewEntries)
@@ -116,6 +130,8 @@ let main = [] -> cmd[()] {
   let binaryJsonData = convertTextToBytes(json.stringify(jsonData))
 
   let _ = FileIO.write("export.json", json.stringify(jsonData))!
+
+  print("Exporting json...")
 
   let _ = request.createServer(
     8080,
