@@ -2,25 +2,150 @@ import request
 import json
 import FileIO
 
+alias reviewData = {
+  timesRequested: int
+  timesResponseded: int
+  averageResponseTime: int
+}
+
+let reviewDataToJson = [data:map[str, reviewData]] -> json.value {
+  let jsonedData = []
+
+  for (name, d in entries(data)) {
+    var jsonedData = jsonedData
+                              |> append(
+                                (name, json.object(mapFrom([
+                                  ("timesRequested", json.number(toFloat(d.timesRequested))),
+                                  ("timesResponseded", json.number(toFloat(d.timesResponseded))),
+                                  ("averageResponseTime", json.number(toFloat(d.averageResponseTime))),
+                                ])))
+                              )
+  }
+
+  return json.object(mapFrom(jsonedData))
+}
+
+let convertTextToBytes = [data:str] -> list[int] {
+  return range(0, len(data), 1)
+                              |> filterMap([i:int] -> maybe[int] {
+                                if let <yes code> = data[i] {
+                                  return yes(charCode(code))
+                                }
+
+                                return none
+                              })
+}
+
 let main = [] -> cmd[()] {
   let possibleToken = FileIO.read(".token")!
   let authHeader = mapFrom([
     (if let <yes token> = possibleToken { ("Authorization", "token " + token) } else { ("", "") })
   ])
 
-  let pullResponse = request.get("https://api.github.com/repos/nbuilding/N-lang/pulls?state=all", mapFrom([]))!
-  print(pullResponse.return)
+  let reviewEntries = mapFrom([("unknown", { timesRequested: 0; timesResponseded: 0; averageResponseTime: 0; })])
+
+  let pullResponse = request.get("https://api.github.com/repos/microsoft/typescript/pulls?state=all&per_page=100", authHeader)!
+
+  if pullResponse.code /= 200 {
+    print("Incorrect Authorization")
+    return ()
+  }
+
+  print("Aggregating data")
+
   if let <array pulls> = pullResponse.return {
     for (pull in pulls) {
       if let <object pullData> = pull {
         if let <yes <boolean draft>> = pullData["draft"] {
           if not draft {
-            print(pullData)
+            if let <yes <array requestedReviewers>> = pullData["requested_reviewers"] {
+              for (possibleReviewer in requestedReviewers) {
+                if let <object reviewer> = possibleReviewer {
+                  let login = "unknown"
+                  if let <yes <string log>> = reviewer["login"] {
+                    var login = log
+                  }
+                  let ent = entries(reviewEntries)
+                  let reviewerData = reviewEntries[login] |> default({ timesRequested: 0; timesResponseded: 0; averageResponseTime: 0; })
+                  var reviewEntries = mapFrom([
+                    ..ent,
+                    (login, {
+                      ..reviewerData
+                      timesRequested: reviewerData.timesRequested + 1
+                    }),
+                  ])
+                } 
+              }
+            }
+            if let <yes <string reviewCommentsUrl>> = pullData["review_comments_url"] {
+              let reviewComments = request.get(reviewCommentsUrl, authHeader)!
+              if reviewComments.code == 200 {
+                if let <array comments> = reviewComments.return {
+                  for (possibleComment in comments) {
+                    if let <object comment> = possibleComment {
+                      if let <yes <object user>> = comment["user"] {
+                        let login = "unknown"
+                        if let <yes <string log>> = user["login"] {
+                          var login = log
+                        }
+                        let ent = entries(reviewEntries)
+                        let reviewerData = reviewEntries[login] |> default({ timesRequested: 0; timesResponseded: 0; averageResponseTime: 0; })
+                        var reviewEntries = mapFrom([
+                          ..ent,
+                          (login, {
+                            ..reviewerData
+                            timesResponseded: reviewerData.timesResponseded + 1
+                            // It is assumed that the times they respond it is because they were requested
+                            timesRequested: reviewerData.timesRequested + 1
+                          }),
+                        ])
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     }
   }
+
+  let jsonData = reviewDataToJson(reviewEntries)
+
+  let binaryJsonData = convertTextToBytes(json.stringify(jsonData))
+
+  let _ = FileIO.write("export.json", json.stringify(jsonData))!
+
+  let _ = request.createServer(
+    8080,
+    [path:str _:str _:json.value] -> cmd[{ responseCode:int; data:list[int]; headers:map[str, str]; mimetype:str }] {
+      if path == "data" {
+        return {
+          responseCode: 200
+          data: binaryJsonData
+          headers: mapFrom([
+            ("access-control-allow-origin", "*"),
+            ("content-type", "application/json"),
+          ])
+          mimetype: "application/json"
+        }
+      }
+
+      // Development purposes: will move back later
+      let mainPage = convertTextToBytes(FileIO.read("template.html")! |> default("uh oh! The template.html file was removed!"))
+
+      return {
+        responseCode: 200
+        data: mainPage
+        headers: mapFrom([
+          ("access-control-allow-origin", "*"),
+          ("content-type", "text/html"),
+        ])
+        mimetype: "text/html"
+      }
+    }
+  )!
 }
 
 let pub out = main()

@@ -3,3 +3,6 @@
 
 # Mac thing
 .DS_Store
+
+# Export file
+export.json
