@@ -4,7 +4,7 @@ import FileIO
 
 alias reviewData = {
   timesRequested: int
-  timesResponseded: int
+  timesResponded: int
   averageResponseTime: int
 }
 
@@ -16,7 +16,7 @@ let reviewDataToJson = [data:map[str, reviewData]] -> json.value {
                               |> append(
                                 (name, json.object(mapFrom([
                                   ("timesRequested", json.number(toFloat(d.timesRequested))),
-                                  ("timesResponseded", json.number(toFloat(d.timesResponseded))),
+                                  ("timesResponded", json.number(toFloat(d.timesResponded))),
                                   ("averageResponseTime", json.number(toFloat(d.averageResponseTime))),
                                 ])))
                               )
@@ -42,7 +42,7 @@ let main = [] -> cmd[()] {
     (if let <yes token> = possibleToken { ("Authorization", "token " + token) } else { ("", "") })
   ])
 
-  let reviewEntries = mapFrom([("unknown", { timesRequested: 0; timesResponseded: 0; averageResponseTime: 0; })])
+  let reviewEntries = mapFrom([("unknown", { timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })])
 
   let pullResponse = request.get("https://api.github.com/repos/microsoft/typescript/pulls?state=all&per_page=100", authHeader)!
 
@@ -66,7 +66,7 @@ let main = [] -> cmd[()] {
                     var login = log
                   }
                   let ent = entries(reviewEntries)
-                  let reviewerData = reviewEntries[login] |> default({ timesRequested: 0; timesResponseded: 0; averageResponseTime: 0; })
+                  let reviewerData = reviewEntries[login] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
                   var reviewEntries = mapFrom([
                     ..ent,
                     (login, {
@@ -89,12 +89,12 @@ let main = [] -> cmd[()] {
                           var login = log
                         }
                         let ent = entries(reviewEntries)
-                        let reviewerData = reviewEntries[login] |> default({ timesRequested: 0; timesResponseded: 0; averageResponseTime: 0; })
+                        let reviewerData = reviewEntries[login] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
                         var reviewEntries = mapFrom([
                           ..ent,
                           (login, {
                             ..reviewerData
-                            timesResponseded: reviewerData.timesResponseded + 1
+                            timesResponded: reviewerData.timesResponded + 1
                             // It is assumed that the times they respond it is because they were requested
                             timesRequested: reviewerData.timesRequested + 1
                           }),

@@ -3,95 +3,61 @@
   <header>
     <title>GLINT</title>
     <style>
-      .chart-wrap {
-        margin-left: 50px;
-        font-family: sans-serif;
-        height: 650px;
-        width: 300px;
-      }
-      .chart-wrap .title {
-        font-weight: bold;
-        font-size: 1.62em;
-        padding: 0.5em 0 1.8em 0;
-        text-align: center;
-        white-space: nowrap;
-      }
-      .grid {
-        width: auto;
-      }
-      .chart-wrap.vertical .grid {
-        transform: translateY(-175px) translateX(175px) rotate(-90deg);
-      }
-      .chart-wrap.vertical .grid .bar::after {
-        transform: translateY(-50%);
-        display: block;
-      }
-      .chart-wrap.vertical .grid::before, .chart-wrap.vertical .grid::after {
-        transform: translateX(-0.2em) rotate(90deg);
-      }
-      .chart-wrap .grid {
-        position: relative;
-        padding: 5px 0 5px 0;
-        height: 100%;
+      html, body, #container {
         width: 100%;
-        border-left: 2px solid #aaa;
-        background: repeating-linear-gradient(90deg,transparent,transparent 19.5%,rgba(170,170,170,0.7) 20%);
-      }
-      .chart-wrap .grid::before {
-        font-size: 0.8em;
-        font-weight: bold;
-        content: '0%';
-        position: absolute;
-        left: -0.5em;
-        top: -1.5em;
-      }
-      .chart-wrap .grid::after {
-        font-size: 0.8em;
-        font-weight: bold;
-        content: '100%';
-        position: absolute;
-        right: -1.5em;
-        top: -1.5em;
-      }
-      .chart-wrap .bar {
-        width: var(--bar-value);
-        height: 10px;
-        margin: 30px 0;
-        background-color: #F16335;
-        border-radius: 0 3px 3px 0;
-      }
-      .chart-wrap .bar:hover {
-        opacity: 0.7;
-      }
-      .chart-wrap .bar::after {
-        content: attr(data-name);
-        margin-left: 100%;
-        padding: 10px;
-        display: inline-block;
-        white-space: nowrap;
+        height: 100%;
+        margin: 0;
+        padding: 0;
       }
     </style>
   </header>
   <body>
-    <div class="chart-wrap vertical">
-      <h2 class="title">Reviews Requested</h2>
-      
-      <div class="grid" id="graph">
-      </div>
-    </div>
+    <script src="https://cdn.anychart.com/releases/8.0.0/js/anychart-base.min.js"></script>
+    <div id="container"></div>
     <script>
       fetch("http://localhost:8080/data").then(
         (response) => {
           response.json().then((value) => {
-            let inner = ""
-            let requestsNumber = 0
-            for (const key of Object.keys(value)) {
-              requestsNumber += value[key].timesRequested
-            }
-            for (const key of Object.keys(value)) {
-              inner += (value[key].timesRequested === 0 ? '' : '<div class="bar" style="--bar-value:' + ((value[key].timesRequested / requestsNumber) * 100) + '%;" data-name="' + key + ' (' + value[key].timesRequested + ')' + '" title="' + key + ' ' + ((value[key].timesRequested / requestsNumber) * 100) + '%"></div>')
-            }
-            document.getElementById('graph').innerHTML = inner
+            anychart.onDocumentReady(() => {
+            
+              const rows = [];
+
+              for (const key of Object.keys(value)) {
+                if (value[key].timesRequested) {
+                  rows.push([key, value[key].timesRequested, value[key].timesResponded]);
+                }
+              }
+
+              // create a data set
+              const data = anychart.data.set(rows);
+
+              // map the data
+              const timesRequestedData = data.mapAs({x: 0, value: 1 });
+              const timesRespondedData = data.mapAs({x: 0, value: 2 });
+
+              // create a chart
+              const chart = anychart.bar();
+
+              // create series and set the data
+              const timesRequested = chart.bar(timesRequestedData);
+              const timesResponded = chart.bar(timesRespondedData);
+
+              // Set names of bars
+              timesRequested.name("Times Requested");
+              timesResponded.name("Times Responded");
+
+              // set axis
+              chart.xAxis().title("Name");
+              chart.yAxis().title("Times Requested/Responded");
+
+              // set the chart title
+              chart.title("Reviews Requested For Repo");
+
+
+              // draw
+              chart.container("container");
+              chart.draw();
+            });
           })  
         }
       )
