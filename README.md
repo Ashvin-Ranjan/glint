@@ -24,3 +24,7 @@ If the repo is private create a user token and echo it into `.token`, then you a
 Run `n --file glint.n` to start up the server then you can go to http://localhost:8080
 
 You can also make a `GET` request to http://localhost:8080/data to get the json data
+
+## Maintaining GLINT
+
+Please see [maintaining.md](./maintaining.md)
