@@ -6,3 +6,6 @@
 
 # Export file
 export.json
+
+# Config File
+config.json

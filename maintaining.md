@@ -2,7 +2,7 @@
 
 ## Using N
 
-GLINT is written in N, a strongly typed language that can run on mac or windows. Here is the [main repo for N](https://github.com/nbuilding/N-lang) and the [documentation for it](https://nbuilding.github.io/N-lang-docs). GLINT is currently written for `v1.3.0` of N.
+GLINT is written in N, a strongly typed language that can run on mac or windows. Here is the [main repo for N](https://github.com/nbuilding/N-lang) and the [documentation for it](https://nbuilding.github.io/N-lang-docs). GLINT is currently written for `v1.3.1` of N.
 
 ## How GLINT works
 
@@ -31,7 +31,7 @@ The end goal of this process is to fit the data down into a `map[str, { timesReq
 - The port to open to (`int`)
 - A function that takes in the path, request type, and header and additional data and returns a `cmd[{ responseCode:int; data:list[int]; headers:map[str, str]; mimetype:str }]` (`str -> str -> json.value -> cmd[{ responseCode:int; data:list[int]; headers:map[str, str]; mimetype:str }]`)
 
-GLINT ignores the request type and the header data and only cares about the `path`, if the path is `data` then it gives back the json data that it got, if it is anything else it loads up the `template.html` file and sends it throught
+GLINT ignores the request type and the header data and only cares about the `path`, if the path is `data` then it gives back the json data that it got, if it is anything else it loads up the `template.html` file and sends it through.
 
 ## utils.n
 
