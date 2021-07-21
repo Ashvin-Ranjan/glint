@@ -69,12 +69,14 @@
         color: black;
         font-family: Arial, Helvetica, sans-serif;
         font-size: medium;
+        text-align: center;
       }
 
       .avatar-area {
         flex: auto;
-        display: inline-flex;
-        align-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         margin-bottom: 5%;
       }
 
@@ -84,6 +86,11 @@
         width: 40px;
         height: 40px;
         border: 1px solid black;
+      }
+
+      a {
+        text-decoration: none;
+        color: black;
       }
     </style>
   </header>
@@ -142,9 +149,20 @@
                   <div class="info-area">
                     <div class="avatar-area">
                       <img class="avatar" src="https://github.com/${key}.png?size=40"></img>
-                      <b>${key}</b>
+                      <a href="https://github.com/${key}">
+                        <b>${key}</b>
+                      </a>
                     </div> <br>
-                    Request Response Percentage: ${Math.ceil((value[key].timesResponded/value[key].timesRequested) * 100)}%
+                    Request Response Percentage: ${Math.ceil((value[key].timesResponded/value[key].timesRequested) * 100)}% <br> <br>
+                    Responded to 
+                    <span style="color: #3466cb">
+                      ${value[key].timesResponded}
+                    </span>
+                    out of
+                    <span style="color: #dc3913">
+                      ${value[key].timesRequested}
+                    </span>
+                    requests
                   </div>
                 </article>
                 `;
