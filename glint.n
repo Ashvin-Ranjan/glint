@@ -48,17 +48,17 @@ let main = [] -> cmd[()] {
               var teamMembersRaw = teamMembersRaw |> append((name, members))
             }
           }
-          printWithEnd("\r", "[" + utils.multString(round(index), "#") + utils.multString(100 - round(index), " ") + "] " + intInBase10(round(index)) + "%")
+          printWithEnd("\r", "[" + utils.GREEN + utils.multString(round(index), "#") + utils.multString(100 - round(index), " ") + utils.RESET + "] " + utils.YELLOW + intInBase10(round(index)) + "%" + utils.RESET)
           var index = index + percentMultiplier
         }
       }
-      print("[" + utils.multString(100, "#") + "] 100%")
+    print("[" + utils.GREEN + utils.multString(100, "#") + utils.RESET + "] " + utils.YELLOW + "100%" + utils.RESET)
     }
   }
 
   let teamMembers = mapFrom(teamMembersRaw)
 
-  print("Aggregating data")
+  print("Aggregating PR data")
 
   let index = 0
 
@@ -156,10 +156,10 @@ let main = [] -> cmd[()] {
           }
         }
       }
-      printWithEnd("\r", "[" + utils.multString(index, "#") + utils.multString(100 - index, " ") + "] " + intInBase10(index) + "%")
+      printWithEnd("\r", "[" + utils.GREEN + utils.multString(index, "#") + utils.multString(100 - index, " ") + utils.RESET + "] " + utils.YELLOW + intInBase10(index) + "%" + utils.RESET)
       var index = index + 1
     }
-    print("[" + utils.multString(100, "#") + "] 100%")
+    print("[" + utils.GREEN + utils.multString(100, "#") + utils.RESET + "] " + utils.YELLOW + "100%" + utils.RESET)
   }
 
   let jsonData = json.object(mapFrom([

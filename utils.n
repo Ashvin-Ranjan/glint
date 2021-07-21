@@ -13,6 +13,11 @@ alias configData = {
   checkTeams: bool
 }
 
+// colors
+let pub GREEN = "\u{1b}[" + intInBase10(32) + "m"
+let pub YELLOW = "\u{1b}[" + intInBase10(33) + "m"
+let pub RESET = "\u{1b}[" + intInBase10(39) + "m"
+
 let pub parseConfig = [data:json.value] -> configData {
   let out = {
     repoAuthor: "nbuilding"

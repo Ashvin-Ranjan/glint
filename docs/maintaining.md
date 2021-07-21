@@ -35,6 +35,8 @@ GLINT ignores the request type and the header data and only cares about the `pat
 
 ## utils.n
 
+### Functions
+
 `utils.n` is filled with any other helper functions that will be used in `glint.n`:
 - `parseConfig`: Parses the data given from `json.parse` into a config that `glint.n` can use (`json.value -> configData`)
 - `reviewDataToJson`: Takes the data created in the first step of GLINT and converts it into a json for ease of use (`map[str, reviewData -> json.value]`)
@@ -42,6 +44,9 @@ GLINT ignores the request type and the header data and only cares about the `pat
 - `multString`: Takes in a string and repeats it(`int -> str -> str`)
 - `getUserTeam`: Takes in a user login and a `list[(str, list[str])]` and sees which teams the user is in (`str -> list[(str, list[str])] -> list[str]`)
 
+### Colors
+
+This uses ANSI color codes, which N supports internally.
 ## Maintaining compatibility
 
 N will try to maintain backwards compatibility, but if it does not work please install the current version of N that is supported for this project.
