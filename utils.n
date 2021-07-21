@@ -10,6 +10,7 @@ alias configData = {
   repoAuthor: str
   repoName: str
   export: bool
+  checkTeams: bool
 }
 
 let pub parseConfig = [data:json.value] -> configData {
@@ -17,6 +18,7 @@ let pub parseConfig = [data:json.value] -> configData {
     repoAuthor: "nbuilding"
     repoName: "N-lang"
     export: false
+    checkTeams: false
   }
 
   if let <object jsonData> = data {
@@ -38,6 +40,13 @@ let pub parseConfig = [data:json.value] -> configData {
       var out = {
         ..out
         export: exp
+      }
+    }
+
+    if let <yes <boolean teams>> = jsonData["checkTeams"] {
+      var out = {
+        ..out
+        checkTeams: teams
       }
     }
   }
@@ -77,6 +86,17 @@ let pub multString = [i:int s:str] -> str {
   let out = ""
   for (j in range(0, i, 1)) {
     var out = out + s
+  }
+
+  return out
+}
+
+let pub getUserTeams = [user:str teams:list[(str, list[str])]] -> list[str] {
+  let out = []
+  for (team, users in teams) {
+    if user in users {
+      var out = out |> append(team)
+    }
   }
 
   return out

@@ -21,6 +21,43 @@ let main = [] -> cmd[()] {
     return ()
   }
 
+  let teamMembersRaw = []
+  if config.checkTeams {
+    print("Aggregating team data")
+    let teamResponseData = request.get("https://api.github.com/orgs/getoutreach/teams?per_page=100", authHeader)!
+    if teamResponseData.code == 200 {
+      if let <array teams> = teamResponseData.return {
+        let percentMultiplier = 100.0/toFloat(len(teams))
+        let index = 0.0
+        for (possibleTeam in teams) {
+          if let <object team> = possibleTeam {
+            if let <yes <string name>> = team["slug"] {
+              let members = []
+              let teamMembersData = request.get("https://api.github.com/orgs/getoutreach/teams/" + name + "/members?per_page=100", authHeader)!
+              if (teamMembersData.code == 200) {
+                if let <array teamMembers> = teamMembersData.return {
+                  for (possibleMember in teamMembers) {
+                    if let <object member> = possibleMember {
+                      if let <yes <string login>> = member["login"] {
+                        var members = members |> append(login)
+                      }
+                    }
+                  }
+                }
+              }
+              var teamMembersRaw = teamMembersRaw |> append((name, members))
+            }
+          }
+          printWithEnd("\r", "[" + utils.multString(round(index), "#") + utils.multString(100 - round(index), " ") + "] " + intInBase10(round(index)) + "%")
+          var index = index + percentMultiplier
+        }
+      }
+      print("[" + utils.multString(100, "#") + "] 100%")
+    }
+  }
+
+  let teamMembers = mapFrom(teamMembersRaw)
+
   print("Aggregating data")
 
   let index = 0
@@ -30,23 +67,45 @@ let main = [] -> cmd[()] {
       if let <object pullData> = pull {
         if let <yes <boolean draft>> = pullData["draft"] {
           if not draft {
-            if let <yes <array requestedReviewers>> = pullData["requested_reviewers"] {
-              for (possibleReviewer in requestedReviewers) {
-                if let <object reviewer> = possibleReviewer {
-                  let login = "unknown"
-                  if let <yes <string log>> = reviewer["login"] {
-                    var login = log
+            if config.checkTeams {
+              if let <yes <array requestedTeams>> = pullData["requested_teams"] {
+                for (possibleTeam in requestedTeams) {
+                  if let <object team> = possibleTeam {
+                    let slug = "unknown"
+                    if let <yes <string sl>> = team["slug"] {
+                      var slug = sl
+                    }
+                    let ent = entries(reviewEntries)
+                    let reviewerData = reviewEntries[slug] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
+                    var reviewEntries = mapFrom([
+                      ..ent,
+                      (slug, {
+                        ..reviewerData
+                        timesRequested: reviewerData.timesRequested + 1
+                      }),
+                    ])
                   }
-                  let ent = entries(reviewEntries)
-                  let reviewerData = reviewEntries[login] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
-                  var reviewEntries = mapFrom([
-                    ..ent,
-                    (login, {
-                      ..reviewerData
-                      timesRequested: reviewerData.timesRequested + 1
-                    }),
-                  ])
-                } 
+                }
+              }
+            } else {
+              if let <yes <array requestedReviewers>> = pullData["requested_reviewers"] {
+                for (possibleReviewer in requestedReviewers) {
+                  if let <object reviewer> = possibleReviewer {
+                    let login = "unknown"
+                    if let <yes <string log>> = reviewer["login"] {
+                      var login = log
+                    }
+                    let ent = entries(reviewEntries)
+                    let reviewerData = reviewEntries[login] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
+                    var reviewEntries = mapFrom([
+                      ..ent,
+                      (login, {
+                        ..reviewerData
+                        timesRequested: reviewerData.timesRequested + 1
+                      }),
+                    ])
+                  } 
+                }
               }
             }
             if let <yes <number pullNumber>> = pullData["number"] {
@@ -60,17 +119,34 @@ let main = [] -> cmd[()] {
                         if let <yes <string log>> = user["login"] {
                           var login = log
                         }
-                        let ent = entries(reviewEntries)
-                        let reviewerData = reviewEntries[login] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
-                        var reviewEntries = mapFrom([
-                          ..ent,
-                          (login, {
-                            ..reviewerData
-                            timesResponded: reviewerData.timesResponded + 1
-                            // It is assumed that the times they respond it is because they were requested
-                            timesRequested: reviewerData.timesRequested + 1
-                          }),
-                        ])
+                        if (config.checkTeams) {
+                          let slugs = utils.getUserTeams(login, teamMembersRaw)
+                          for (slug in slugs) { 
+                            let ent = entries(reviewEntries)
+                            let reviewerData = reviewEntries[slug] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
+                            var reviewEntries = mapFrom([
+                              ..ent,
+                              (slug, {
+                                ..reviewerData
+                                timesResponded: reviewerData.timesResponded + 1
+                                // It is assumed that the times they respond it is because they were requested
+                                timesRequested: reviewerData.timesRequested + 1
+                              }),
+                            ])
+                          }
+                        } else {
+                          let ent = entries(reviewEntries)
+                          let reviewerData = reviewEntries[login] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
+                          var reviewEntries = mapFrom([
+                            ..ent,
+                            (login, {
+                              ..reviewerData
+                              timesResponded: reviewerData.timesResponded + 1
+                              // It is assumed that the times they respond it is because they were requested
+                              timesRequested: reviewerData.timesRequested + 1
+                            }),
+                          ])
+                        }
                       }
                     }
                   }
@@ -86,8 +162,14 @@ let main = [] -> cmd[()] {
     print("[" + utils.multString(100, "#") + "] 100%")
   }
 
-  let jsonData = utils.reviewDataToJson(reviewEntries)
-
+  let jsonData = json.object(mapFrom([
+    ("info", json.object(mapFrom([
+      ("isTeams", json.boolean(config.checkTeams)),
+      ("organization", json.string(config.repoAuthor)),
+      ("repoName", json.string(config.repoName)),
+    ]))),
+    ("data", utils.reviewDataToJson(reviewEntries)),
+  ]))
   let binaryJsonData = utils.convertTextToBytes(json.stringify(jsonData))
   let binaryIconData = FileIO.readBytes("site/favicon.ico")! |> default([])
 

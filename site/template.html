@@ -111,7 +111,9 @@
       const loadAndDrawData = () => {
       fetch("http://localhost:8080/data").then(
           (response) => {
-            response.json().then((value) => {
+            response.json().then((fullData) => {
+              const info = fullData["info"];
+              let value = fullData["data"];
               value = Object.keys(value).sort((a, b) => {
                 if (value[b].timesRequested - value[a].timesRequested !== 0) {
                   return value[b].timesRequested - value[a].timesRequested
@@ -148,10 +150,16 @@
                 height: '100%',
                 hAxis: {
                   title: 'Reviews Requested/Responded',
-                  minValue: 0
+                  minValue: 0,
                 },
                 vAxis: {
-                  title: 'Name'
+                  title: 'Name',
+                  textStyle : {
+                    fontSize: 10 // or the number you want
+                  },
+                  ticks: {
+                    autoSkip: false,
+                  },
                 },
                 isStacked: true,
               };
@@ -188,10 +196,9 @@
                   </div>
                   <div class="info-area">
                     <div class="avatar-area">
-                      <img class="avatar" src="https://github.com/${key}.png?size=40"></img>
-                      <a href="https://github.com/${key}">
+                      ${ fullData["info"].isTeams ? '' : `<img class="avatar" src="https://github.com/${key}.png?size=40"></img><a href="https://github.com/${key}">`}
                         <b>${key}</b>
-                      </a>
+                      ${ fullData["info"].isTeams ? '' : `</a>`}
                     </div> <br>
                     Request Response Percentage: ${Math.ceil((value[key].timesResponded/value[key].timesRequested) * 100)}% <br> <br>
                     Responded to 

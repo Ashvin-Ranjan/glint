@@ -40,6 +40,7 @@ GLINT ignores the request type and the header data and only cares about the `pat
 - `reviewDataToJson`: Takes the data created in the first step of GLINT and converts it into a json for ease of use (`map[str, reviewData -> json.value]`)
 - `convertTextToBytes`: Takes in a string and converts it into a list of bytes for the http server (`str -> list[int]`)
 - `multString`: Takes in a string and repeats it(`int -> str -> str`)
+- `getUserTeam`: Takes in a user login and a `list[(str, list[str])]` and sees which teams the user is in (`str -> list[(str, list[str])] -> list[str]`)
 
 ## Maintaining compatibility
 
