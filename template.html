@@ -104,6 +104,25 @@
       fetch("http://localhost:8080/data").then(
           (response) => {
             response.json().then((value) => {
+              value = Object.keys(value).sort((a, b) => {
+                if (value[b].timesRequested - value[a].timesRequested !== 0) {
+                  return value[b].timesRequested - value[a].timesRequested
+                }
+                if (value[a].timesResponded > value[b].timesResponded) {
+                  return -1
+                }
+                if (value[a].timesResponded < value[b].timesResponded) {
+                  return 1
+                }
+                return 0
+              }).reduce(
+                (obj, key) => { 
+                  obj[key] = value[key]; 
+                  return obj;
+                }, 
+                {}
+              );
+
               const rows = [['Name', 'Reviews Responded', 'Reviews Unresponded', { role: 'annotation' } ]];
 
               for (const key of Object.keys(value)) {
