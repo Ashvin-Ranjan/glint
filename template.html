@@ -2,6 +2,7 @@
 <html>
   <header>
     <title>GLINT</title>
+    <link rel="icon" href="https://github.com/getoutreach.png">
     <style>
       .card {
         display: flex;
@@ -30,20 +31,21 @@
         position: relative;
         transform: scale(0.9);
         overflow: hidden;
+        margin-top: -4%;
       }
 
       .stats-area {
         display: inline-flex;
         flex-wrap: wrap;
         width: 100%;
+        margin-top: 5%;
       }
 
-      .stats-title {
+      .section-title {
         color: black;
         font-family: Arial, Helvetica, sans-serif;
         text-align: center;
         font-size: 300%;
-        margin-bottom: 5%;
       }
 
       .percentages {
@@ -101,8 +103,9 @@
   </header>
   <body>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <h1 class="section-title">Requests Reviewed and Responded</h1>
     <article id="chart_div" class="chart-card" style="height: 100vh"></article>
-    <h1 class="stats-title">Per-User Stats</h1>
+    <h1 class="section-title">Per-User Stats</h1>
     <div id="stats_div" class="stats-area"></div>
     <script>
       const loadAndDrawData = () => {
@@ -139,7 +142,7 @@
               const data = google.visualization.arrayToDataTable(rows);
 
               const options = {
-                title: 'Requests Reviewed and Responded',
+                title: '',
                 chartArea: {width: '75%'},
                 width: '100%',
                 height: '100%',
@@ -158,8 +161,10 @@
               const selectHandler = () => {
                 const selectedItem = chart.getSelection()[0];
                 if (selectedItem) {
-                  const value = data.getValue(selectedItem.row, 0);
-                  document.getElementById(value).scrollIntoView({behavior: "smooth", inline: "center"});
+                  try{
+                    const value = data.getValue(selectedItem.row, 0);
+                    document.getElementById(value).scrollIntoView({behavior: "smooth", inline: "center"});
+                  } catch {}
                 }
               }
 

@@ -49,13 +49,13 @@ let main = [] -> cmd[()] {
                 } 
               }
             }
-            if let <yes <string reviewCommentsUrl>> = pullData["review_comments_url"] {
-              let reviewComments = request.get(reviewCommentsUrl, authHeader)!
-              if reviewComments.code == 200 {
-                if let <array comments> = reviewComments.return {
-                  for (possibleComment in comments) {
-                    if let <object comment> = possibleComment {
-                      if let <yes <object user>> = comment["user"] {
+            if let <yes <number pullNumber>> = pullData["number"] {
+              let reviewData = request.get("https://api.github.com/repos/" + config.repoAuthor + "/" + config.repoName + "/pulls/" + intInBase10(round(pullNumber)) + "/reviews", authHeader)!
+              if reviewData.code == 200 {
+                if let <array reviews> = reviewData.return {
+                  for (possibleReview in reviews) {
+                    if let <object review> = possibleReview {
+                      if let <yes <object user>> = review["user"] {
                         let login = "unknown"
                         if let <yes <string log>> = user["login"] {
                           var login = log
@@ -89,10 +89,13 @@ let main = [] -> cmd[()] {
   let jsonData = utils.reviewDataToJson(reviewEntries)
 
   let binaryJsonData = utils.convertTextToBytes(json.stringify(jsonData))
+  let binaryIconData = FileIO.readBytes("favicon.ico")! |> default([])
 
-  let _ = FileIO.write("export.json", json.stringify(jsonData))!
+  if config.export {
+    let _ = FileIO.write("export.json", json.stringify(jsonData))!
 
-  print("Exporting json...")
+    print("Exporting json...")
+  }
 
   let _ = request.createServer(
     8080,
@@ -109,8 +112,20 @@ let main = [] -> cmd[()] {
         }
       }
 
+      if path == "favicon.ico" {
+        return {
+          responseCode: 200
+          data: binaryIconData
+          headers: mapFrom([
+            ("access-control-allow-origin", "*"),
+            ("content-type", "image/vnd.microsoft.icon"),
+          ])
+          mimetype: "image/vnd.microsoft.icon"
+        }
+      }
+
       // Development purposes: will move back later
-      let mainPage = utils.convertTextToBytes(FileIO.read("template.html")! |> default("uh oh! The template.html file was removed!"))
+      let mainPage = FileIO.readBytes("template.html")! |> default(utils.convertTextToBytes("uh oh! The template.html file was removed!"))
 
       return {
         responseCode: 200
