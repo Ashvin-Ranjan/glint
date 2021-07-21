@@ -9,6 +9,8 @@ Follow the [install instructions](https://github.com/nbuilding/N-lang#install-n)
 
 ### Config setup
 
+To control settings in GLINT, in the `config` folder create a `config.json`, this will allow you to put settings in to control GLINT, here are the fields you are able to control:
+
 `config.json` is the main config file for GLINT, the options here are:
 - `repoAuthor`: The author of the repo (Default: "")
 - `repoName`: The name of the repo (Default: "")
@@ -17,7 +19,7 @@ Follow the [install instructions](https://github.com/nbuilding/N-lang#install-n)
 After you are done setting up the `config.json` if the repo is public then you are ready to go!
 ### Private Repos
 
-If the repo is private create a user token and echo it into `.token`, then you are ready to go!
+If the repo is private create a user token and echo it into `/config/.token`, then you are ready to go!
 
 ## Running GLINT
 
@@ -27,4 +29,4 @@ You can also make a `GET` request to http://localhost:8080/data to get the json 
 
 ## Maintaining GLINT
 
-Please see [maintaining.md](./maintaining.md)
+Please see [maintaining.md](./docs/maintaining.md)

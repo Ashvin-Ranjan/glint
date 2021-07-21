@@ -47,4 +47,4 @@ N will try to maintain backwards compatibility, but if it does not work please i
 
 ## Maintaining this doc
 
-Please update this doc whenever new parts are added to any of the files and whenever N is updated.
+Please update this doc whenever new parts are added to any of the files and whenever N is updated, please also update [version support](./versionsupport.md).

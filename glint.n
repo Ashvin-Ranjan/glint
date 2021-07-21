@@ -5,9 +5,9 @@ import FileIO
 let utils = imp "./utils.n"
 
 let main = [] -> cmd[()] {
-  let config = utils.parseConfig(json.parse(FileIO.read("config.json")! |> default("")))
+  let config = utils.parseConfig(json.parse(FileIO.read("config/config.json")! |> default("")))
 
-  let possibleToken = FileIO.read(".token")!
+  let possibleToken = FileIO.read("config/.token")!
   let authHeader = mapFrom([
     (if let <yes token> = possibleToken { ("Authorization", "token " + token) } else { ("", "") })
   ])
@@ -89,7 +89,7 @@ let main = [] -> cmd[()] {
   let jsonData = utils.reviewDataToJson(reviewEntries)
 
   let binaryJsonData = utils.convertTextToBytes(json.stringify(jsonData))
-  let binaryIconData = FileIO.readBytes("favicon.ico")! |> default([])
+  let binaryIconData = FileIO.readBytes("site/favicon.ico")! |> default([])
 
   if config.export {
     let _ = FileIO.write("export.json", json.stringify(jsonData))!
@@ -125,7 +125,7 @@ let main = [] -> cmd[()] {
       }
 
       // Development purposes: will move back later
-      let mainPage = FileIO.readBytes("template.html")! |> default(utils.convertTextToBytes("uh oh! The template.html file was removed!"))
+      let mainPage = FileIO.readBytes("site/template.html")! |> default(utils.convertTextToBytes("uh oh! The template.html file was removed!"))
 
       return {
         responseCode: 200
