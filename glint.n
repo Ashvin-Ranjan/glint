@@ -202,6 +202,21 @@ let pub main = [] -> cmd[()] {
         }
       }
 
+      if path == "api/reload" {
+        let binData = utils.convertTextToBytes("reloading")
+        var config = utils.parseConfig(json.parse(FileIO.read("config/config.json")! |> default("")))
+        let _ = aggregateData(config)!
+        return {
+          responseCode: 200
+          data: binData
+          headers: mapFrom([
+            ("access-control-allow-origin", "*"),
+            ("content-type", "text/plain"),
+          ])
+          mimetype: "text/plain"
+        }
+      }
+
       if path == "favicon.ico" {
         return {
           responseCode: 200
