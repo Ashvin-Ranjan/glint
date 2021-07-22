@@ -128,6 +128,21 @@
                 return value[b].timesResponded - value[a].timesResponded
               });
 
+              const responseRequestPercentage = Object.keys(value).sort((a, b) => {
+                const aRequested = Math.ceil((value[a].timesResponded/value[a].timesRequested) * 100)
+                const bRequested = Math.ceil((value[b].timesResponded/value[b].timesRequested) * 100)
+                if (bRequested - aRequested !== 0) {
+                  return bRequested - aRequested
+                }
+                if (value[a].timesResponded > value[b].timesResponded) {
+                  return -1
+                }
+                if (value[a].timesResponded < value[b].timesResponded) {
+                  return 1
+                }
+                return 0
+              });
+
               const path = window.location.pathname.substring(1);
 
               if (!value[path]) {
@@ -161,7 +176,8 @@
                 requests <br> <br>
                 <b>Placements:</b> <br>
                 Times requested placement: <span style="color: #3466cb">#${mostRequested.indexOf(path) + 1}</span> <br>
-                Times responded placement: <span style="color: #3466cb">#${mostResponded.indexOf(path) + 1}</span>
+                Times responded placement: <span style="color: #3466cb">#${mostResponded.indexOf(path) + 1}</span> <br>
+                Responded/Requested placement: <span style="color: #3466cb">#${responseRequestPercentage.indexOf(path) + 1}</span> <br>
               `
             })
           }

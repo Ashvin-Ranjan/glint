@@ -112,6 +112,7 @@ let main = [] -> cmd[()] {
               let reviewData = request.get("https://api.github.com/repos/" + config.repoAuthor + "/" + config.repoName + "/pulls/" + intInBase10(round(pullNumber)) + "/reviews", authHeader)!
               if reviewData.code == 200 {
                 if let <array reviews> = reviewData.return {
+                  let teamsReviewed = []
                   for (possibleReview in reviews) {
                     if let <object review> = possibleReview {
                       if let <yes <object user>> = review["user"] {
@@ -122,17 +123,7 @@ let main = [] -> cmd[()] {
                         if (config.checkTeams) {
                           let slugs = utils.getUserTeams(login, teamMembersRaw)
                           for (slug in utils.removeDuplicates(slugs)) { 
-                            let ent = entries(reviewEntries)
-                            let reviewerData = reviewEntries[slug] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
-                            var reviewEntries = mapFrom([
-                              ..ent,
-                              (slug, {
-                                ..reviewerData
-                                timesResponded: reviewerData.timesResponded + 1
-                                // It is assumed that the times they respond it is because they were requested
-                                timesRequested: reviewerData.timesRequested + 1
-                              }),
-                            ])
+                            var teamsReviewed = teamsReviewed |> append(slug)
                           }
                         } else {
                           let ent = entries(reviewEntries)
@@ -148,6 +139,21 @@ let main = [] -> cmd[()] {
                           ])
                         }
                       }
+                    }
+                  }
+                  if (config.checkTeams) {
+                    for (slug in utils.removeDuplicates(teamsReviewed)) {
+                      let ent = entries(reviewEntries)
+                      let reviewerData = reviewEntries[slug] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
+                      var reviewEntries = mapFrom([
+                        ..ent,
+                        (slug, {
+                          ..reviewerData
+                          timesResponded: reviewerData.timesResponded + 1
+                          // It is assumed that the times they respond it is because they were requested
+                          timesRequested: reviewerData.timesRequested + 1
+                        }),
+                      ])
                     }
                   }
                 }
