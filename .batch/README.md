@@ -20,3 +20,7 @@ The config currently has 4 settings:
 Run `n --file batch.n`, once it is complete it will generate a file called `carton.n`, you can run this with `n --file carton.n`, and you can see the results of your unit tests!
 
 Copied from [the main readme](https://github.com/ashvin-ranjan/batch.n#readme)
+
+## Updating batch.n
+
+To update `batch.n` run `n --file update.n`, this fill fetch the file from github.
