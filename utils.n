@@ -11,6 +11,7 @@ alias configData = {
   repoName: str
   export: bool
   checkTeams: bool
+  port: int
 }
 
 // colors
@@ -24,6 +25,7 @@ let pub parseConfig = [data:json.value] -> configData {
     repoName: "N-lang"
     export: false
     checkTeams: false
+    port: 8080
   }
 
   if let <object jsonData> = data {
@@ -52,6 +54,13 @@ let pub parseConfig = [data:json.value] -> configData {
       var out = {
         ..out
         checkTeams: teams
+      }
+    }
+
+    if let <yes <number p>> = jsonData["port"] {
+      var out = {
+        ..out
+        port: floor(p)
       }
     }
   }

@@ -165,7 +165,7 @@ let main = [] -> cmd[()] {
   let jsonData = json.object(mapFrom([
     ("info", json.object(mapFrom([
       ("isTeams", json.boolean(config.checkTeams)),
-      ("organization", json.string(config.repoAuthor)),
+      ("owner", json.string(config.repoAuthor)),
       ("repoName", json.string(config.repoName)),
     ]))),
     ("data", utils.reviewDataToJson(reviewEntries)),
@@ -180,7 +180,7 @@ let main = [] -> cmd[()] {
   }
 
   let _ = request.createServer(
-    8080,
+    config.port,
     [path:str _:str _:json.value] -> cmd[{ responseCode:int; data:list[int]; headers:map[str, str]; mimetype:str }] {
       if path == "data" {
         return {

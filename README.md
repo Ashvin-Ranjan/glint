@@ -16,6 +16,7 @@ To control settings in GLINT, in the `config` folder create a `config.json`, thi
 - `repoName`: The name of the repo (Default: "")
 - `export`: Should it export the data to `export.json` (Default: `false`)
 - `checkTeams`: Query teams instead of users (Default: `false`)
+- `port`: Which port the website will open on (Default: `8080`)
 
 After you are done setting up the `config.json` if the repo is public then you are ready to go!
 ### Private Repos

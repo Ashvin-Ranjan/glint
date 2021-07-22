@@ -109,7 +109,7 @@
     <div id="stats_div" class="stats-area"></div>
     <script>
       const loadAndDrawData = () => {
-      fetch("http://localhost:8080/data").then(
+      fetch("/data").then(
           (response) => {
             response.json().then((fullData) => {
               const info = fullData["info"];
@@ -196,9 +196,9 @@
                   </div>
                   <div class="info-area">
                     <div class="avatar-area">
-                      ${ fullData["info"].isTeams ? '' : `<img class="avatar" src="https://github.com/${key}.png?size=40"></img><a href="https://github.com/${key}">`}
+                      ${ fullData["info"].isTeams ? `<a href="https://github.com/orgs/${info['owner']}/teams/${key}">` : `<img class="avatar" src="https://github.com/${key}.png?size=40"></img><a href="https://github.com/${key}">`}
                         <b>${key}</b>
-                      ${ fullData["info"].isTeams ? '' : `</a>`}
+                      </a>
                     </div> <br>
                     Request Response Percentage: ${Math.ceil((value[key].timesResponded/value[key].timesRequested) * 100)}% <br> <br>
                     Responded to 

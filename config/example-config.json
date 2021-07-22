@@ -1,5 +1,7 @@
 {
   "repoAuthor": "Microsoft",
   "repoName": "Typescript",
-  "export": false
+  "export": false,
+  "checkTeams": false,
+  "port": 8080
 }
