@@ -31,7 +31,7 @@ The end goal of this process is to fit the data down into a `map[str, { timesReq
 - The port to open to (`int`)
 - A function that takes in the path, request type, and header and additional data and returns a `cmd[{ responseCode:int; data:list[int]; headers:map[str, str]; mimetype:str }]` (`str -> str -> json.value -> cmd[{ responseCode:int; data:list[int]; headers:map[str, str]; mimetype:str }]`)
 
-GLINT ignores the request type and the header data and only cares about the `path`, if the path is `data` then it gives back the json data that it got, if it is blank then it loads up `template.html`, and if it is anything else it loads up the `card-template.html` file and sends it through.
+GLINT ignores the request type and the header data and only cares about the `path`, if the path is `api/data` then it gives back the json data that it got, if it is blank then it loads up `template.html`, and if it is anything else it loads up the `card-template.html` file and sends it through.
 
 ## utils.n
 

@@ -109,7 +109,7 @@
     <div id="stats_div" class="stats-area"></div>
     <script>
       const loadAndDrawData = () => {
-      fetch("/data").then(
+      fetch("/api/data").then(
           (response) => {
             response.json().then((fullData) => {
               const info = fullData["info"];

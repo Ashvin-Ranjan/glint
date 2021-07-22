@@ -105,7 +105,7 @@
       </div>
     </article>
     <script>
-      fetch("/data").then(
+      fetch("/api/data").then(
           (response) => {
             response.json().then((fullData) => {
               const info = fullData["info"];
