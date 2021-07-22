@@ -1,0 +1,17 @@
+import request
+import FileIO
+
+let main = [] -> cmd[()] {
+  let data = request.get("https://raw.githubusercontent.com/Ashvin-Ranjan/batch.n/main/batch.n", mapFrom([]))!
+
+  if data.code /= 200 {
+    print("Unexpected error when fetching, code: " + intInBase10(data.code))
+    return ()
+  }
+
+  if let <string fileData> = data.return {
+    let _ = FileIO.write("batch.n", fileData)!
+  }
+}
+
+let pub out = main()
