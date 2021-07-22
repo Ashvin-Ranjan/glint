@@ -115,3 +115,14 @@ let pub getUserTeams = [user:str teams:list[(str, list[str])]] -> list[str] {
 
   return out
 }
+
+let pub removeDuplicates = [[t] l:list[t]] -> list[t] {
+  let out = []
+  for (i in l) {
+    if ~(i in out) {
+      var out = out |> append(i)
+    }
+  }
+
+  return out
+}

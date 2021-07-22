@@ -121,7 +121,7 @@ let main = [] -> cmd[()] {
                         }
                         if (config.checkTeams) {
                           let slugs = utils.getUserTeams(login, teamMembersRaw)
-                          for (slug in slugs) { 
+                          for (slug in utils.removeDuplicates(slugs)) { 
                             let ent = entries(reviewEntries)
                             let reviewerData = reviewEntries[slug] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
                             var reviewEntries = mapFrom([
@@ -206,18 +206,31 @@ let main = [] -> cmd[()] {
         }
       }
 
-      // Development purposes: will move back later
-      let mainPage = FileIO.readBytes("site/template.html")! |> default(utils.convertTextToBytes("uh oh! The template.html file was removed!"))
+      if path == "" {
+        let mainPage = FileIO.readBytes("site/template.html")! |> default(utils.convertTextToBytes("uh oh! The template.html file was removed!"))
 
-      return {
-        responseCode: 200
-        data: mainPage
-        headers: mapFrom([
-          ("access-control-allow-origin", "*"),
-          ("content-type", "text/html"),
-        ])
-        mimetype: "text/html"
+        return {
+          responseCode: 200
+          data: mainPage
+          headers: mapFrom([
+            ("access-control-allow-origin", "*"),
+            ("content-type", "text/html"),
+          ])
+          mimetype: "text/html"
+        }
       }
+
+      let cardPage = FileIO.readBytes("site/card-template.html")! |> default(utils.convertTextToBytes("uh oh! The card-template.html file was removed!"))
+
+        return {
+          responseCode: 200
+          data: cardPage
+          headers: mapFrom([
+            ("access-control-allow-origin", "*"),
+            ("content-type", "text/html"),
+          ])
+          mimetype: "text/html"
+        }
     }
   )!
 }

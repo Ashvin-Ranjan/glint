@@ -43,6 +43,7 @@ GLINT ignores the request type and the header data and only cares about the `pat
 - `convertTextToBytes`: Takes in a string and converts it into a list of bytes for the http server (`str -> list[int]`)
 - `multString`: Takes in a string and repeats it(`int -> str -> str`)
 - `getUserTeam`: Takes in a user login and a `list[(str, list[str])]` and sees which teams the user is in (`str -> list[(str, list[str])] -> list[str]`)
+- `removeDuplicates`: Takes in a list and remove the duplicates in it (`[t] list[t] -> list[t]`)
 
 ### Colors
 
