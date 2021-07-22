@@ -25,9 +25,11 @@ If the repo is private create a user token and echo it into `/config/.token`, th
 
 ## Running GLINT
 
-Run `n --file glint.n` to start up the server then you can go to http://localhost:8080
+Run `n` to start up the server then you can go to http://localhost:8080
 
-You can also make a `GET` request to http://localhost:8080/data to get the json data
+You can also make a `GET` request to http://localhost:8080/api/data to get the json data
+
+To restart the data you can make a `GET` request to http://localhost:8080/api/restart
 
 ## Maintaining GLINT
 

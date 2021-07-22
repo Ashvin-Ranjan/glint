@@ -1,0 +1,32 @@
+import json
+
+let utils = imp "../utils.n"
+
+assert type utils.GREEN : str
+assert type utils.YELLOW : str
+assert type utils.RESET : str
+
+assert type utils.parseConfig : json.value -> { repoAuthor: str; repoName: str; export: bool; checkTeams: bool; port: int }
+
+assert type utils.reviewDataToJson : map[str, { timesRequested: int; timesResponded: int; averageResponseTime: int; }] -> json.value
+
+assert type utils.convertTextToBytes : str -> list[int]
+
+assert type utils.multString : int -> str -> str
+
+assert type utils.getUserTeams : str -> list[(str, list[str])] -> list[str]
+
+assert type utils.removeDuplicates : [t] list[t] -> list[t]
+
+assert value utils.parseConfig(json.null) = { repoAuthor: ""; repoName: ""; export: false; checkTeams: false; port: 8080 }
+assert value utils.parseConfig(json.parse("{ \"repoAuthor\": \"Microsoft\", \"repoName\": \"Typescript\", \"export\": false, \"checkTeams\": false, \"port\": 8080 }")) = { repoAuthor: "Microsoft"; repoName: "Typescript"; export: false; checkTeams: false; port: 8080 }
+
+assert value utils.reviewDataToJson(mapFrom([("test", { timesRequested: 1; timesResponded: 1; averageResponseTime: 1 })])) = json.object(mapFrom([("test", json.object(mapFrom([("timesRequested", json.number(1.0)), ("timesResponded", json.number(1.0)), ("averageResponseTime", json.number(1.0))])))]))
+
+assert value utils.convertTextToBytes("AAAA") = [65, 65, 65, 65]
+
+assert value utils.multString(3, "test") = "testtesttest"
+
+assert value utils.getUserTeams("test", [("testing", ["test", "test2"])]) = ["testing"]
+
+assert value utils.removeDuplicates([1, 1, 2, 3, 2, 4, 3]) = [1, 2, 3, 4]

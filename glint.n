@@ -4,9 +4,9 @@ import FileIO
 
 let utils = imp "./utils.n"
 
-let main = [] -> cmd[()] {
-  let config = utils.parseConfig(json.parse(FileIO.read("config/config.json")! |> default("")))
+let jsonData = json.null
 
+let pub aggregateData = [config:utils.configData] -> cmd[()] {
   let possibleToken = FileIO.read("config/.token")!
   let authHeader = mapFrom([
     (if let <yes token> = possibleToken { ("Authorization", "token " + token) } else { ("", "") })
@@ -164,7 +164,7 @@ let main = [] -> cmd[()] {
     print("[" + utils.GREEN + utils.multString(100, "#") + utils.RESET + "] " + utils.YELLOW + "100%" + utils.RESET)
   }
 
-  let jsonData = json.object(mapFrom([
+  var jsonData = json.object(mapFrom([
     ("info", json.object(mapFrom([
       ("isTeams", json.boolean(config.checkTeams)),
       ("owner", json.string(config.repoAuthor)),
@@ -172,19 +172,25 @@ let main = [] -> cmd[()] {
     ]))),
     ("data", utils.reviewDataToJson(reviewEntries)),
   ]))
-  let binaryJsonData = utils.convertTextToBytes(json.stringify(jsonData))
-  let binaryIconData = FileIO.readBytes("site/favicon.ico")! |> default([])
 
   if config.export {
     let _ = FileIO.write("export.json", json.stringify(jsonData))!
 
     print("Exporting json...")
   }
+}
+
+let pub main = [] -> cmd[()] {
+  let config = utils.parseConfig(json.parse(FileIO.read("config/config.json")! |> default("")))
+  let _ = aggregateData(config)!
+
+  let binaryIconData = FileIO.readBytes("site/favicon.ico")! |> default([])
 
   let _ = request.createServer(
     config.port,
     [path:str _:str _:json.value] -> cmd[{ responseCode:int; data:list[int]; headers:map[str, str]; mimetype:str }] {
       if path == "api/data" {
+        let binaryJsonData = utils.convertTextToBytes(json.stringify(jsonData))
         return {
           responseCode: 200
           data: binaryJsonData
@@ -236,5 +242,3 @@ let main = [] -> cmd[()] {
     }
   )!
 }
-
-let pub out = main()

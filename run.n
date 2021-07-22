@@ -1,0 +1,3 @@
+let glint = imp "./glint.n"
+
+let pub out = glint.main()

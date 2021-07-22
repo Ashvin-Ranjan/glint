@@ -48,6 +48,11 @@ GLINT ignores the request type and the header data and only cares about the `pat
 ### Colors
 
 This uses ANSI color codes, which N supports internally.
+
+## Unit testing
+
+GLINT uses [batch.n](https://github.com/ashvin-ranjan/batch.n) to do unit testing, for more see (the readme)[../.batch/README.md]
+
 ## Maintaining compatibility
 
 N will try to maintain backwards compatibility, but if it does not work please install the current version of N that is supported for this project.

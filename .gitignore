@@ -8,4 +8,7 @@
 export.json
 
 # Config File
-config.json
+config/config.json
+
+# Batch carton
+carton.n

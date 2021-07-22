@@ -1,0 +1,113 @@
+import json
+import FileIO
+import SystemIO
+
+alias configOptions = {
+	path: str
+	diff: str
+	recursive: bool
+	runAll: bool
+}
+
+let multString = [amount:int s:str] -> str {
+	let out = ""
+	for (i in range(0, amount, 1)) {
+		var out = out + s
+	}
+
+	return out
+}
+
+let enumerate = [[t] l:list[t]] -> list[(int, t)] {
+	return range(0, len(l), 1) |>
+		filterMap([i:int] -> maybe[(int, t)] {
+			if let <yes v> = l[i] {
+				return yes((i, v))
+			}
+			return none
+		})
+}
+
+let compileTestScript = [testFiles:list[str]] -> cmd[bool] {
+	let _ = FileIO.write("carton.n", "type status = awaiting | failed | passed\nlet files = [" + multString(len(testFiles), "awaiting, ") + "]\nlet printWithProgressBar = [[t] val:t] -> cmd[()] {\nprint(val)\nprintWithEnd(\"\", \"[\")\nfor (stat in files) {\nif stat == failed {\nprintWithEnd(\"\\u{1b}[\" + intInBase10(39) + \"m\", \"\\u{1b}[\" + intInBase10(31) + \"m█\")\n} else if stat == passed {\nprintWithEnd(\"\\u{1b}[\" + intInBase10(39) + \"m\", \"\\u{1b}[\" + intInBase10(32) + \"m█\")\n} else {\nprintWithEnd(\"\", \"█\")\n}\n}\nprintWithEnd(\"\\r\", \"]\")\n}\nlet setItemInList = [[t] i:int v:t l:list[t]] -> list[t] {\nlet part1 = l |> subsection(0, i)\nlet part2 = l |> subsection(i+1, len(l))\nreturn [..part1, v, ..part2]\n}\n")!
+
+	for (i, file in enumerate(testFiles)) {
+		let _ = FileIO.append("carton.n", "let impf" + intInBase10(i) + " = [i:int] -> cmd[()] {\nlet _ = printWithProgressBar(\"\\u{1b}[1;\" + intInBase10(43) + \"m\" + \"" + file + "\" + \"\\u{1b}[1;\" + intInBase10(49) + \"m\" + \": Importing file...\")!\nlet m = imp \"" + file + "\"\nlet _ = printWithProgressBar(\"\\u{1b}[1;\" + intInBase10(43) + \"m\" + \"" + file + "\" + \"\\u{1b}[1;\" + intInBase10(49) + \"m\" + \": File imported!\")!\nif let <yes mo> = intoModule(m) {\nlet _ = printWithProgressBar(\"\\u{1b}[1;\" + intInBase10(43) + \"m\" + \"" + file + "\" + \"\\u{1b}[1;\" + intInBase10(49) + \"m\" + \": Starting test reviews.\")!\nfor ({hasPassed: hp; fileLine: fl; unitTestType: ut; possibleTypes: pt} in getUnitTestResults(mo)) {\nif hp == false {\nvar files = setItemInList(i, failed, files)\nlet _ = printWithProgressBar(\"\\u{1b}[1;\" + intInBase10(43) + \"m\" + \"" + file + "\" + \"\\u{1b}[1;\" + intInBase10(49) + \"m\" + \": Test failed\\nType: \" + ut + \"\\nLine: \" + intInBase10(fl))!\nreturn ()\n}\n}\nvar files = setItemInList(i, passed, files)\nlet _ = printWithProgressBar(\"\\u{1b}[1;\" + intInBase10(43) + \"m\" + \"" + file + "\" + \"\\u{1b}[1;\" + intInBase10(49) + \"m\" + \": Tests passed\")!\n} else {\nvar files = setItemInList(i, failed, files)\nlet _ = printWithProgressBar(\"\\u{1b}[1;\" + intInBase10(43) + \"m\" + \"" + file + "\" + \"\\u{1b}[1;\" + intInBase10(49) + \"m\" + \": An unexpected error occured.\")!\n}\n}\n")!
+	}
+
+	let _ = FileIO.append("carton.n", "let functions = [")!
+
+	for (i in range(0, len(testFiles), 1)) {
+		let _ = FileIO.append("carton.n", "{ i: " + intInBase10(i) + "; func: impf" + intInBase10(i) + "}, ")!
+	}
+
+	let _ = FileIO.append("carton.n", "]\nlet main = [] -> cmd[()] {\nfor (fdata in functions) {\nlet _ = fdata.func(fdata.i)!\n}let pass = 0\nfor (s in files) {\nif s == passed {\nvar pass = pass + 1\n}\n}\nlet frac = intInBase10(pass) + \"/\" + intInBase10(len(files)) + \" Tests Passed\"\nfor (i in range(0, (len(files) + 2) - len(frac), 1)) {\nvar frac = frac + \" \"\n}\nvar frac = \"\\u{1b}[1;\" + intInBase10(33) + \"m\" + frac + \"\\u{1b}[\" + intInBase10(39) + \"m\"\nprintWithProgressBar(frac)\n}\nlet pub out = main()")!
+
+	print("Carton created! Run with `n --file carton.n`")
+	return true	
+}
+
+
+
+let configGen = [obj:json.value] -> configOptions {
+	let configOut = {
+		path: "./"
+		diff: "egg"
+		recursive: false
+		runAll: false
+	}
+
+	if let <object configData> = obj {
+		if let <yes <string path>> = configData["directory"] {
+			var configOut = {
+				..configOut
+				path: path
+			}
+		}
+
+		if let <yes <string diff>> = configData["differentiation"] {
+			var configOut = {
+				..configOut
+				diff: diff
+			}
+		}
+
+		if let <yes <boolean recursive>> = configData["recursive"] {
+			var configOut = {
+				..configOut
+				recursive: recursive
+			}
+		}
+
+		if let <yes <boolean runAll>> = configData["all"] {
+			var configOut = {
+				..configOut
+				runAll: runAll
+			}
+		}
+	}
+
+	return configOut
+}
+
+let main = [] -> cmd[bool] {
+	let config = json.parse(FileIO.read("config.json")! |> default(""))
+
+	let configRec = configGen(config)
+
+	let files = FileIO.getFiles(configRec.path)!
+	
+	let testingFiles:list[str] = []
+
+	for (isFile, name in files) {
+		if (isFile) {
+			if (configRec.runAll && (name |> substring(len(name) - 2, len(name))) == ".n") || ((name |> substring(len(name) - len(configRec.diff) - 3, len(name))) == "." + configRec.diff + ".n") {
+				var testingFiles = testingFiles |> append(configRec.path + name)
+			}
+		}
+	}
+
+	return compileTestScript(testingFiles)!
+}
+
+let pub out = main()

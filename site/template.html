@@ -2,7 +2,7 @@
 <html>
   <header>
     <title>GLINT</title>
-    <link rel="icon" href="https://github.com/getoutreach.png">
+    <link rel="icon" href="/favicon.ico">
     <style>
       .card {
         display: flex;
@@ -104,7 +104,7 @@
   <body>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <h1 class="section-title">Requests Reviewed and Responded</h1>
-    <article id="chart_div" class="chart-card" style="height: 100vh"></article>
+    <article id="chart_div" class="chart-card" style="height: 95vh"></article>
     <h1 class="section-title">Per-User Stats</h1>
     <div id="stats_div" class="stats-area"></div>
     <script>
@@ -171,7 +171,7 @@
                 if (selectedItem) {
                   try{
                     const value = data.getValue(selectedItem.row, 0);
-                    document.getElementById(value).scrollIntoView({behavior: "smooth", inline: "center"});
+                    document.getElementById(value).scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
                   } catch {}
                 }
               }
@@ -189,9 +189,9 @@
                 inner += `
                 <article class="card" id="${key}">
                   <div class="percentages">
-                    <div style="width: ${Math.floor(((value[key].timesRequested - value[key].timesResponded)/value[key].timesRequested) * 100)}%;" class="top-percent">
-                    </div>
                     <div style="width: ${Math.ceil((value[key].timesResponded/value[key].timesRequested) * 100)}%;" class="bottom-percent">
+                    </div>
+                    <div style="width: ${Math.floor(((value[key].timesRequested - value[key].timesResponded)/value[key].timesRequested) * 100)}%;" class="top-percent">
                     </div>
                   </div>
                   <a href="/${key}">
