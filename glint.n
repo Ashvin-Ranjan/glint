@@ -182,6 +182,20 @@ let pub aggregateData = [config:utils.configData] -> cmd[()] {
 
 let pub main = [] -> cmd[()] {
   let config = utils.parseConfig(json.parse(FileIO.read("config/config.json")! |> default("")))
+
+  if let <yes ver> = FileIO.read("VERSION")! {
+    if config.warnUpdate {
+      let data = request.get("https://api.github.com/repos/ashvinranjan-outreach/glint/releases/latest", mapFrom([]))!
+      if data.code == 200 {
+        if let <string verGithub> = data.return {
+          if ver /= verGithub {
+            print(utils.YELLOW + "Warning: " + utils.RESET + "You are on version " + utils.YELLOW + ver + utils.RESET + ", while the newest release is " + utils.YELLOW + verGithub + utils.RESET)
+          }
+        }
+      }
+    }
+  }
+
   let _ = aggregateData(config)!
 
   let binaryIconData = FileIO.readBytes("site/favicon.ico")! |> default([])
@@ -205,6 +219,20 @@ let pub main = [] -> cmd[()] {
       if path == "api/reload" {
         let binData = utils.convertTextToBytes("reloading")
         var config = utils.parseConfig(json.parse(FileIO.read("config/config.json")! |> default("")))
+
+        if let <yes ver> = FileIO.read("VERSION")! {
+          if config.warnUpdate {
+            let data = request.get("https://api.github.com/repos/ashvinranjan-outreach/glint/releases/latest", mapFrom([]))!
+            if data.code == 200 {
+              if let <string verGithub> = data.return {
+                if ver /= verGithub {
+                  print(utils.YELLOW + "Warning: " + utils.RESET + "You are on version " + utils.YELLOW + ver + utils.RESET + ", while the newest release is " + utils.YELLOW + verGithub + utils.RESET)
+                }
+              }
+            }
+          }
+        }
+
         let _ = aggregateData(config)!
         return {
           responseCode: 200

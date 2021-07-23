@@ -12,6 +12,7 @@ alias pub configData = {
   export: bool
   checkTeams: bool
   port: int
+  warnUpdate: bool
 }
 
 // colors
@@ -26,6 +27,7 @@ let pub parseConfig = [data:json.value] -> configData {
     export: false
     checkTeams: false
     port: 8080
+    warnUpdate: true
   }
 
   if let <object jsonData> = data {
@@ -61,6 +63,13 @@ let pub parseConfig = [data:json.value] -> configData {
       var out = {
         ..out
         port: floor(p)
+      }
+    }
+
+    if let <yes <boolean warn>> = jsonData["warnUpdate"] {
+      var out = {
+        ..out
+        warnUpdate: warn
       }
     }
   }

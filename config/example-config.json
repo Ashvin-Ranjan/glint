@@ -3,5 +3,6 @@
   "repoName": "Typescript",
   "export": false,
   "checkTeams": false,
-  "port": 8080
+  "port": 8080,
+  "warnUpdate": true
 }

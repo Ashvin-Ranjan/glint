@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+
+jobs:
+
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v2
+     
+      - name: Get Tag Name
+        id: tag
+        run: echo ::set-output name=name::${GITHUB_REF#refs/*/}
+
+      - name: Write Version Name
+        run: |
+        echo ${{ steps.tag.outputs.name }} > VERSION
+
+      - name: Commit Changes
+        run: |
+        git add .
+        git commit -m "Update VERSION file for release"
+        
+      - name: Push Changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          force: true
+
+  release:
+    needs: [update-version]
+    runs-on: ubuntu-latest
+    steps:
+            
+      - name: Get Tag Name
+        id: tag
+        run: echo ::set-output name=name::${GITHUB_REF#refs/*/}
+        
+      - name: Create Draft Release
+        uses: ncipollo/release-action@v1
+        with:
+          name: ${{ steps.tag.outputs.name }}
+          draft: true
+          token: ${{ secrets.GITHUB_TOKEN }}
