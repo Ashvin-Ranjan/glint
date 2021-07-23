@@ -6,7 +6,10 @@ let utils = imp "./utils.n"
 
 let jsonData = json.null
 
+let currentlyUpdating = false
+
 let pub aggregateData = [config:utils.configData] -> cmd[()] {
+  var currentlyUpdating = true
   let possibleToken = FileIO.read("config/.token")!
   let authHeader = mapFrom([
     (if let <yes token> = possibleToken { ("Authorization", "token " + token) } else { ("", "") })
@@ -18,6 +21,7 @@ let pub aggregateData = [config:utils.configData] -> cmd[()] {
 
   if pullResponse.code /= 200 {
     print("Incorrect Authorization or Repo Does not Exist")
+    var currentlyUpdating = false
     return ()
   }
 
@@ -178,6 +182,8 @@ let pub aggregateData = [config:utils.configData] -> cmd[()] {
 
     print("Exporting json...")
   }
+
+  var currentlyUpdating = false
 }
 
 let pub main = [] -> cmd[()] {
@@ -219,31 +225,43 @@ let pub main = [] -> cmd[()] {
       }
 
       if path == "api/reload" {
-        let binData = utils.convertTextToBytes("reloading")
-        var config = utils.parseConfig(json.parse(FileIO.read("config/config.json")! |> default("")))
+        if ~currentlyUpdating {
+          let binData = utils.convertTextToBytes("reloading")
+          var config = utils.parseConfig(json.parse(FileIO.read("config/config.json")! |> default("")))
 
-        if let <yes ver> = FileIO.read("VERSION")! {
-          if config.warnUpdate {
-            let data = request.get("https://api.github.com/repos/ashvinranjan-outreach/glint/releases/latest", mapFrom([]))!
-            if data.code == 200 {
-              if let <string verGithub> = data.return {
-                if ver /= verGithub {
-                  print(utils.YELLOW + "Warning: " + utils.RESET + "You are on version " + utils.YELLOW + ver + utils.RESET + ", while the newest release is " + utils.YELLOW + verGithub + utils.RESET)
+          if let <yes ver> = FileIO.read("VERSION")! {
+            if config.warnUpdate {
+              let data = request.get("https://api.github.com/repos/ashvinranjan-outreach/glint/releases/latest", mapFrom([]))!
+              if data.code == 200 {
+                if let <string verGithub> = data.return {
+                  if ver /= verGithub {
+                    print(utils.YELLOW + "Warning: " + utils.RESET + "You are on version " + utils.YELLOW + ver + utils.RESET + ", while the newest release is " + utils.YELLOW + verGithub + utils.RESET)
+                  }
                 }
               }
             }
           }
-        }
 
-        let _ = aggregateData(config)!
-        return {
-          responseCode: 200
-          data: binData
-          headers: mapFrom([
-            ("access-control-allow-origin", "*"),
-            ("content-type", "text/plain"),
-          ])
-          mimetype: "text/plain"
+          let _ = aggregateData(config)!
+          return {
+            responseCode: 200
+            data: binData
+            headers: mapFrom([
+              ("access-control-allow-origin", "*"),
+              ("content-type", "text/plain"),
+            ])
+            mimetype: "text/plain"
+          }
+        } else {
+          return {
+            responseCode: 429
+            data: utils.convertTextToBytes("Please wait until the current reload is finished")
+            headers: mapFrom([
+              ("access-control-allow-origin", "*"),
+              ("content-type", "text/plain"),
+            ])
+            mimetype: "text/plain"
+          }
         }
       }
 
