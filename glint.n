@@ -188,7 +188,7 @@ let pub main = [] -> cmd[()] {
       let data = request.get("https://api.github.com/repos/ashvinranjan-outreach/glint/releases/latest", mapFrom([]))!
       if data.code == 200 {
         if let <string verGithub> = data.return {
-          if ver /= verGithub {
+          if strip(ver) /= strip(verGithub) {
             print(utils.YELLOW + "Warning: " + utils.RESET + "You are on version " + utils.YELLOW + ver + utils.RESET + ", while the newest release is " + utils.YELLOW + verGithub + utils.RESET)
           }
         }
