@@ -21,6 +21,12 @@ jobs:
       - name: Write Version Name
         run: echo ${{ steps.tag.outputs.name }} > VERSION
 
+      - name: Set Author Name
+        run: git config --global user.name ${GITHUB_ACTOR}
+
+      - name: Set Author Email
+        run: git config --global user.email ${GITHUB_ACTOR}@outreach.io
+
       - name: Add Changes
         run: git add .
 
