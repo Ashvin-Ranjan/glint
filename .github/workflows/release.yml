@@ -19,8 +19,7 @@ jobs:
         run: echo ::set-output name=name::${GITHUB_REF#refs/*/}
 
       - name: Write Version Name
-        run: |
-        echo ${{ steps.tag.outputs.name }} > VERSION
+        run: echo ${{ steps.tag.outputs.name }} > VERSION
 
       - name: Commit Changes
         run: |
@@ -37,7 +36,7 @@ jobs:
     needs: [update-version]
     runs-on: ubuntu-latest
     steps:
-            
+
       - name: Get Tag Name
         id: tag
         run: echo ::set-output name=name::${GITHUB_REF#refs/*/}
