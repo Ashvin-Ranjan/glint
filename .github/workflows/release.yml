@@ -19,7 +19,7 @@ jobs:
         run: echo ::set-output name=name::${GITHUB_REF#refs/*/}
 
       - name: Write Version Name
-        run: echo ${{ steps.tag.outputs.name }} > VERSION
+        run: echo -n ${{ steps.tag.outputs.name }} > VERSION
 
       - name: Set Author Name
         run: git config --global user.name ${GITHUB_ACTOR}
