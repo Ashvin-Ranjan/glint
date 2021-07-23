@@ -22,9 +22,8 @@ jobs:
         run: echo ${{ steps.tag.outputs.name }} > VERSION
 
       - name: Commit Changes
-        run: |
-        git add .
-        git commit -m "Update VERSION file for release"
+        run: git add .
+        run: git commit -m "Update VERSION file for release"
         
       - name: Push Changes
         uses: ad-m/github-push-action@master
