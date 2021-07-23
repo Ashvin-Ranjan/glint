@@ -28,7 +28,7 @@ jobs:
         run: git config --global user.email ${GITHUB_ACTOR}@outreach.io
 
       - name: Add Changes
-        run: git add .
+        run: git add TOKEN
 
       - name: Commit Changes
         run: git commit -m "Update VERSION file for release"
