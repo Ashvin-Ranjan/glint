@@ -6,9 +6,9 @@ assert type utils.GREEN : str
 assert type utils.YELLOW : str
 assert type utils.RESET : str
 
-assert type utils.parseConfig : json.value -> { repoAuthor: str; repoName: str; export: bool; checkTeams: bool; port: int }
+assert type utils.parseConfig : json.value -> utils.configData
 
-assert type utils.reviewDataToJson : map[str, { timesRequested: int; timesResponded: int; averageResponseTime: int; }] -> json.value
+assert type utils.reviewDataToJson : map[str, utils.reviewData] -> json.value
 
 assert type utils.convertTextToBytes : str -> list[int]
 

@@ -1,5 +1,6 @@
 let glint = imp "../glint.n"
+let utils = imp "../utils.n"
 
-assert type glint.aggregateData : { repoAuthor: str; repoName: str; export: bool; checkTeams: bool; port: int } -> cmd[()]
+assert type glint.aggregateData : utils.configData -> cmd[()]
 
 assert type glint.main : () -> cmd[()]

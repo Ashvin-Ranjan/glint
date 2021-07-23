@@ -32,6 +32,13 @@ You can also make a `GET` request to http://localhost:8080/api/data to get the j
 
 To restart the data you can make a `GET` request to http://localhost:8080/api/restart
 
+### Sorting the results
+
+By appinding `?sort=<SORTMETHOD>` at the end of the base url you can change the sort method. Here are the sort methods and their keys:
+- `0`: Sort by most times requested
+- `1`: Sort by most times reviewed
+- `2`: Sort by highest reviewed/requested ratio
+
 ## Maintaining GLINT
 
 Please see [maintaining.md](./docs/maintaining.md)

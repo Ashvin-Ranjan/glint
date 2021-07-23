@@ -1,6 +1,6 @@
 import json
 
-alias reviewData = {
+alias pub reviewData = {
   timesRequested: int
   timesResponded: int
   averageResponseTime: int

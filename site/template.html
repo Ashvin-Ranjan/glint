@@ -114,24 +114,60 @@
             response.json().then((fullData) => {
               const info = fullData["info"];
               let value = fullData["data"];
-              value = Object.keys(value).sort((a, b) => {
-                if (value[b].timesRequested - value[a].timesRequested !== 0) {
-                  return value[b].timesRequested - value[a].timesRequested
-                }
-                if (value[a].timesResponded > value[b].timesResponded) {
-                  return -1
-                }
-                if (value[a].timesResponded < value[b].timesResponded) {
-                  return 1
-                }
-                return 0
-              }).reduce(
-                (obj, key) => { 
-                  obj[key] = value[key]; 
-                  return obj;
-                }, 
-                {}
-              );
+
+              const sortingMethod = (new URLSearchParams(window.location.search)).get('sort');
+
+              if (sortingMethod == 1) {
+                value = Object.keys(value).sort((a, b) => {
+                  return value[b].timesResponded - value[a].timesResponded
+                }).reduce(
+                  (obj, key) => { 
+                    obj[key] = value[key]; 
+                    return obj;
+                  }, 
+                  {}
+                );
+              } else if (sortingMethod == 2) {
+                value = Object.keys(value).sort((a, b) => {
+                  const aRequested = Math.ceil((value[a].timesResponded/value[a].timesRequested) * 100)
+                  const bRequested = Math.ceil((value[b].timesResponded/value[b].timesRequested) * 100)
+                  if (bRequested - aRequested !== 0) {
+                    return bRequested - aRequested
+                  }
+                  if (value[a].timesResponded > value[b].timesResponded) {
+                    return -1
+                  }
+                  if (value[a].timesResponded < value[b].timesResponded) {
+                    return 1
+                  }
+                  return 0
+                }).reduce(
+                  (obj, key) => { 
+                    obj[key] = value[key]; 
+                    return obj;
+                  }, 
+                  {}
+                );
+              } else {
+                value = Object.keys(value).sort((a, b) => {
+                  if (value[b].timesRequested - value[a].timesRequested !== 0) {
+                    return value[b].timesRequested - value[a].timesRequested
+                  }
+                  if (value[a].timesResponded > value[b].timesResponded) {
+                    return -1
+                  }
+                  if (value[a].timesResponded < value[b].timesResponded) {
+                    return 1
+                  }
+                  return 0
+                }).reduce(
+                  (obj, key) => { 
+                    obj[key] = value[key]; 
+                    return obj;
+                  }, 
+                  {}
+                );
+              }
 
               const rows = [['Name', 'Reviews Responded', 'Reviews Unresponded', { role: 'annotation' } ]];
 
