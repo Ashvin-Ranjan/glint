@@ -21,8 +21,10 @@ jobs:
       - name: Write Version Name
         run: echo ${{ steps.tag.outputs.name }} > VERSION
 
-      - name: Commit Changes
+      - name: Add Changes
         run: git add .
+
+      - name: Commit Changes
         run: git commit -m "Update VERSION file for release"
         
       - name: Push Changes
