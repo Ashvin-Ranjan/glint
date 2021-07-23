@@ -187,9 +187,11 @@ let pub main = [] -> cmd[()] {
     if config.warnUpdate {
       let data = request.get("https://api.github.com/repos/ashvinranjan-outreach/glint/releases/latest", mapFrom([]))!
       if data.code == 200 {
-        if let <string verGithub> = data.return {
-          if strip(ver) /= strip(verGithub) {
-            print(utils.YELLOW + "Warning: " + utils.RESET + "You are on version " + utils.YELLOW + ver + utils.RESET + ", while the newest release is " + utils.YELLOW + verGithub + utils.RESET)
+        if let <object release> = data.return {
+          if let <yes <string verGithub>> = release["name"] {
+            if strip(ver) /= strip(verGithub) {
+              print(utils.YELLOW + "Warning: " + utils.RESET + "You are on the version " + utils.YELLOW + strip(ver) + utils.RESET + ", while the newest release is " + utils.YELLOW + strip(verGithub) + utils.RESET)
+            }
           }
         }
       }

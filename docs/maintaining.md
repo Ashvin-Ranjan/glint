@@ -18,6 +18,7 @@ type pub value = <object map[str, value]>
                | <number float>
                | <string str>
                | <boolean bool>
+               | <array list[value]>
                | null
 ```
 
@@ -51,7 +52,7 @@ This uses ANSI color codes, which N supports internally.
 
 ## Unit testing
 
-GLINT uses [batch.n](https://github.com/ashvin-ranjan/batch.n) to do unit testing, for more see (the readme)[../.batch/README.md]
+GLINT uses [batch.n](https://github.com/ashvin-ranjan/batch.n) to do unit testing, for more see [the readme](../.batch/README.md)
 
 ## Maintaining compatibility
 
