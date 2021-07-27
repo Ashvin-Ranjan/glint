@@ -45,6 +45,7 @@ GLINT ignores the request type and the header data and only cares about the `pat
 - `multString`: Takes in a string and repeats it(`int -> str -> str`)
 - `getUserTeam`: Takes in a user login and a `list[(str, list[str])]` and sees which teams the user is in (`str -> list[(str, list[str])] -> list[str]`)
 - `removeDuplicates`: Takes in a list and remove the duplicates in it (`[t] list[t] -> list[t]`)
+- `getChangesFromDiffFile`: Takes in the text from a diff file and gets the lines added and removed (`str -> (int, int)`)
 
 ### Colors
 

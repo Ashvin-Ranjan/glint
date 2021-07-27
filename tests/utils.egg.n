@@ -18,6 +18,8 @@ assert type utils.getUserTeams : str -> list[(str, list[str])] -> list[str]
 
 assert type utils.removeDuplicates : [t] list[t] -> list[t]
 
+assert type utils.getChangesFromDiffFile : str -> (int, int)
+
 assert value utils.parseConfig(json.null) = { repoAuthor: ""; repoName: ""; export: false; checkTeams: false; port: 8080; warnUpdate: true; checkDiff: true }
 assert value utils.parseConfig(json.parse("{ \"repoAuthor\": \"Microsoft\", \"repoName\": \"Typescript\", \"export\": false, \"checkTeams\": false, \"port\": 8080, \"warnUpdate\": true, \"checkDiff\": true }")) = { repoAuthor: "Microsoft"; repoName: "Typescript"; export: false; checkTeams: false; port: 8080; warnUpdate: true; checkDiff: true }
 
@@ -30,3 +32,5 @@ assert value utils.multString(3, "test") = "testtesttest"
 assert value utils.getUserTeams("test", [("testing", ["test", "test2"])]) = ["testing"]
 
 assert value utils.removeDuplicates([1, 1, 2, 3, 2, 4, 3]) = [1, 2, 3, 4]
+
+assert value utils.getChangesFromDiffFile("--- a/\n+++ b/\n+ aaa\n- eeeee\n+e\n-a") = (2, 2)
