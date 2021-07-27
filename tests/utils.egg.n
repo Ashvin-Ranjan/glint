@@ -18,8 +18,8 @@ assert type utils.getUserTeams : str -> list[(str, list[str])] -> list[str]
 
 assert type utils.removeDuplicates : [t] list[t] -> list[t]
 
-assert value utils.parseConfig(json.null) = { repoAuthor: ""; repoName: ""; export: false; checkTeams: false; port: 8080; warnUpdate: true }
-assert value utils.parseConfig(json.parse("{ \"repoAuthor\": \"Microsoft\", \"repoName\": \"Typescript\", \"export\": false, \"checkTeams\": false, \"port\": 8080, \"warnUpdate\": true }")) = { repoAuthor: "Microsoft"; repoName: "Typescript"; export: false; checkTeams: false; port: 8080; warnUpdate: true }
+assert value utils.parseConfig(json.null) = { repoAuthor: ""; repoName: ""; export: false; checkTeams: false; port: 8080; warnUpdate: true; checkDiff: true }
+assert value utils.parseConfig(json.parse("{ \"repoAuthor\": \"Microsoft\", \"repoName\": \"Typescript\", \"export\": false, \"checkTeams\": false, \"port\": 8080, \"warnUpdate\": true, \"checkDiff\": true }")) = { repoAuthor: "Microsoft"; repoName: "Typescript"; export: false; checkTeams: false; port: 8080; warnUpdate: true; checkDiff: true }
 
 assert value utils.reviewDataToJson(mapFrom([("test", { timesRequested: 1; timesResponded: 1; averageResponseTime: 1 })])) = json.object(mapFrom([("test", json.object(mapFrom([("timesRequested", json.number(1.0)), ("timesResponded", json.number(1.0)), ("averageResponseTime", json.number(1.0))])))]))
 

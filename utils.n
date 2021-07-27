@@ -13,6 +13,7 @@ alias pub configData = {
   checkTeams: bool
   port: int
   warnUpdate: bool
+  checkDiff:bool
 }
 
 // colors
@@ -28,6 +29,7 @@ let pub parseConfig = [data:json.value] -> configData {
     checkTeams: false
     port: 8080
     warnUpdate: true
+    checkDiff: true
   }
 
   if let <object jsonData> = data {
@@ -70,6 +72,13 @@ let pub parseConfig = [data:json.value] -> configData {
       var out = {
         ..out
         warnUpdate: warn
+      }
+    }
+
+    if let <yes <boolean diff>> = jsonData["checkDiff"] {
+      var out = {
+        ..out
+        checkDiff: diff
       }
     }
   }
@@ -134,4 +143,24 @@ let pub removeDuplicates = [[t] l:list[t]] -> list[t] {
   }
 
   return out
+}
+
+let pub getChangesFromDiffFile = [diff:str] -> (int, int) {
+  let added = 0
+  let removed = 0
+  for (line in (diff |> split(\n))) {
+    if (substring(0, 6, line) == "--- a/" || substring(0, 6, line) == "+++ b/") {
+      continue
+    }
+
+    if (line[0] == yes(\{+})) {
+      var added = added + 1
+    }
+
+    if (line[0] == yes(\{-})) {
+      var removed = removed + 1
+    }
+  }
+
+  return (added, removed)
 }

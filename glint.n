@@ -25,6 +25,13 @@ let pub aggregateData = [config:utils.configData] -> cmd[()] {
     return ()
   }
 
+  let numOpen = 0
+  let numMerged = 0
+  let numDraft = 0
+
+  let overallAdditions = 0
+  let overallRemovals = 0
+
   let teamMembersRaw = []
   if config.checkTeams {
     print("Aggregating team data")
@@ -159,6 +166,28 @@ let pub aggregateData = [config:utils.configData] -> cmd[()] {
                 }
               }
             }
+            if pullData["merged_at"] == yes(json.null) {
+              var numOpen = numOpen + 1
+            } else {
+              var numMerged = numMerged + 1
+            }
+            if config.checkDiff {
+              if let <yes <string diffUrl>> = pullData["url"] {
+                let diffData = request.get(diffUrl, mapFrom([
+                  ..entries(authHeader),
+                  ("Accept", "application/vnd.github.v3.diff")
+                ]))!
+                if diffData.code == 200 {
+                  if let <string diff> = diffData.return {
+                    let a, r = utils.getChangesFromDiffFile(diff)
+                    var overallAdditions = overallAdditions + a
+                    var overallRemovals = overallRemovals + r
+                  }
+                }
+              }
+            }
+          } else {
+            var numDraft = numDraft + 1
           }
         }
       }
@@ -175,6 +204,17 @@ let pub aggregateData = [config:utils.configData] -> cmd[()] {
       ("repoName", json.string(config.repoName)),
     ]))),
     ("data", utils.reviewDataToJson(reviewEntries)),
+    ("overall", json.object(mapFrom([
+      ("pullStates", json.object(mapFrom([
+        ("open", json.number(toFloat(numOpen))),
+        ("merged", json.number(toFloat(numMerged))),
+        ("draft", json.number(toFloat(numDraft))),
+      ]))),
+      ("diffs", json.object(mapFrom([
+        ("additions", json.number(toFloat(overallAdditions))),
+        ("removals", json.number(toFloat(overallRemovals))),
+      ])))
+    ])))
   ]))
 
   if config.export {
