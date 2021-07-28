@@ -382,7 +382,9 @@
 
               const diffs = overall["diffs"]
 
-              if (diffs["additions"] === 0 && diffs["removals"] === 0) {
+              console.log(diffs["removals"])
+
+              if (diffs["additions"] !== 0 || diffs["removals"] !== 0) {
                 document.getElementById("add").style = `width: ${(diffs["additions"]/(diffs["additions"] + diffs["removals"])) * 100}%;`;
                 document.getElementById("remove").style = `width: ${(diffs["removals"]/(diffs["additions"] + diffs["removals"])) * 100}%;`;
 
