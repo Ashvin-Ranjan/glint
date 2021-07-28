@@ -197,7 +197,7 @@
         <div class="large-info-area" id="pr-about">
         </div>
       </article>
-      <article class="overall-card">
+      <article class="overall-card" id="diff-card">
         <div class="percentages">
           <div style="width: 0" class="diff-add-percent" id="add">
           </div>
@@ -221,7 +221,7 @@
 
               if (sortingMethod == 1) {
                 value = Object.keys(value).sort((a, b) => {
-                  return value[b].timesResponded - value[a].timesResponded
+                  return value[b].timesResponded - value[a].timesResponded;
                 }).reduce(
                   (obj, key) => { 
                     obj[key] = value[key]; 
@@ -231,18 +231,18 @@
                 );
               } else if (sortingMethod == 2) {
                 value = Object.keys(value).sort((a, b) => {
-                  const aRequested = Math.ceil((value[a].timesResponded/value[a].timesRequested) * 100)
-                  const bRequested = Math.ceil((value[b].timesResponded/value[b].timesRequested) * 100)
+                  const aRequested = Math.ceil((value[a].timesResponded/value[a].timesRequested) * 100);
+                  const bRequested = Math.ceil((value[b].timesResponded/value[b].timesRequested) * 100);
                   if (bRequested - aRequested !== 0) {
-                    return bRequested - aRequested
+                    return bRequested - aRequested;
                   }
                   if (value[a].timesResponded > value[b].timesResponded) {
-                    return -1
+                    return -1;
                   }
                   if (value[a].timesResponded < value[b].timesResponded) {
-                    return 1
+                    return 1;
                   }
-                  return 0
+                  return 0;
                 }).reduce(
                   (obj, key) => { 
                     obj[key] = value[key]; 
@@ -356,11 +356,11 @@
 
               document.getElementById("stats_div").innerHTML = inner;
 
-              const pullStates = overall["pullStates"]
+              const pullStates = overall["pullStates"];
 
-              document.getElementById("open").style = `width: ${(pullStates["open"]/(pullStates["open"] + pullStates["draft"] + pullStates["merged"])) * 100}%;`
-              document.getElementById("draft").style = `width: ${(pullStates["draft"]/(pullStates["open"] + pullStates["draft"] + pullStates["merged"])) * 100}%;`
-              document.getElementById("merged").style = `width: ${(pullStates["merged"]/(pullStates["open"] + pullStates["draft"] + pullStates["merged"])) * 100}%;`
+              document.getElementById("open").style = `width: ${(pullStates["open"]/(pullStates["open"] + pullStates["draft"] + pullStates["merged"])) * 100}%;`;
+              document.getElementById("draft").style = `width: ${(pullStates["draft"]/(pullStates["open"] + pullStates["draft"] + pullStates["merged"])) * 100}%;`;
+              document.getElementById("merged").style = `width: ${(pullStates["merged"]/(pullStates["open"] + pullStates["draft"] + pullStates["merged"])) * 100}%;`;
 
               document.getElementById("pr-about").innerHTML = `
               <div class="large-title-area">
@@ -378,34 +378,38 @@
               <span style="color: #6f42c1">
                 ${pullStates["merged"]}
               </span>
-              `
+              `;
 
               const diffs = overall["diffs"]
-              
-              document.getElementById("add").style = `width: ${(diffs["additions"]/(diffs["additions"] + diffs["removals"])) * 100}%;`
-              document.getElementById("remove").style = `width: ${(diffs["removals"]/(diffs["additions"] + diffs["removals"])) * 100}%;`
 
-              document.getElementById("diff-about").innerHTML = `
-              <div class="large-title-area">
-                  <b>Overall PR Diffs</b>
-              </div> <br>
-              Overall PR Additions: 
-              <span style="color: #28a745">
-                ${diffs["additions"]}
-              </span> <br>
-              Overall PR Removals: 
-              <span style="color: #d73a49">
-                ${diffs["removals"]}
-              </span> <br> <br>
-              Average PR Additions: 
-              <span style="color: #28a745">
-                ${Math.round(diffs["additions"]/(100 - pullStates["draft"]))}
-              </span> <br>
-              Average PR Removals: 
-              <span style="color: #d73a49">
-                ${Math.round(diffs["removals"]/(100 - pullStates["draft"]))}
-              </span> <br>
-              `
+              if (diffs["additions"] === 0 && diffs["removals"] === 0) {
+                document.getElementById("add").style = `width: ${(diffs["additions"]/(diffs["additions"] + diffs["removals"])) * 100}%;`;
+                document.getElementById("remove").style = `width: ${(diffs["removals"]/(diffs["additions"] + diffs["removals"])) * 100}%;`;
+
+                document.getElementById("diff-about").innerHTML = `
+                <div class="large-title-area">
+                    <b>Overall PR Diffs</b>
+                </div> <br>
+                Overall PR Additions: 
+                <span style="color: #28a745">
+                  ${diffs["additions"]}
+                </span> <br>
+                Overall PR Removals: 
+                <span style="color: #d73a49">
+                  ${diffs["removals"]}
+                </span> <br> <br>
+                Average PR Additions: 
+                <span style="color: #28a745">
+                  ${Math.round(diffs["additions"]/(100 - pullStates["draft"]))}
+                </span> <br>
+                Average PR Removals: 
+                <span style="color: #d73a49">
+                  ${Math.round(diffs["removals"]/(100 - pullStates["draft"]))}
+                </span> <br>
+                `;
+              } else {
+                document.getElementById("diff-card").remove();
+              }
             })  
           }
         )

@@ -11,9 +11,11 @@ let currentlyUpdating = false
 let pub aggregateData = [config:utils.configData] -> cmd[()] {
   var currentlyUpdating = true
   let possibleToken = FileIO.read("config/.token")!
-  let authHeader = mapFrom([
-    (if let <yes token> = possibleToken { ("Authorization", "token " + token) } else { ("", "") })
-  ])
+  let authHeader = mapFrom([]) 
+
+  if let <yes token> = possibleToken { 
+    var authHeader = mapFrom([("Authorization", "token " + token)]) 
+  }
 
   let reviewEntries = mapFrom([("unknown", { timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })])
 
