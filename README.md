@@ -1,6 +1,12 @@
 # GLINT
 Github Logistics In N Technology
 
+## What is GLINT?
+
+GLINT is a tool to help increase the flow of information in your repos and help get more reviews in the same amount of times, all with a clean UI. It analyses PR data and giving back statistics on users or teams for how many times they were requested and how many times did they review. There are also overall stats such as the state of the last 100 PRs, and the overall and average diffs of those 100 PRs.
+
+GLINT is made in N, which is an open-source and strongly typed programming language with a focus on backend integration, if you want to understand what is going on in the code, read the [documentation](https://nbuilding.github.io/N-lang-docs).
+
 ## Setup
 
 ### Setting up N
