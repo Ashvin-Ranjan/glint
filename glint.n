@@ -30,6 +30,7 @@ let pub aggregateData = [config:utils.configData] -> cmd[()] {
   let numOpen = 0
   let numMerged = 0
   let numDraft = 0
+  let numClosed = 0
 
   let overallAdditions = 0
   let overallRemovals = 0
@@ -86,44 +87,46 @@ let pub aggregateData = [config:utils.configData] -> cmd[()] {
                 var creatorUser = login
               }
             }
-            if config.checkTeams {
-              if let <yes <array requestedTeams>> = pullData["requested_teams"] {
-                for (possibleTeam in requestedTeams) {
-                  if let <object team> = possibleTeam {
-                    let slug = "unknown"
-                    if let <yes <string sl>> = team["slug"] {
-                      var slug = sl
+            if pullData["merged_at"] == yes(json.null) && pullData["closed_at"] == yes(json.null) {
+              if config.checkTeams {
+                if let <yes <array requestedTeams>> = pullData["requested_teams"] {
+                  for (possibleTeam in requestedTeams) {
+                    if let <object team> = possibleTeam {
+                      let slug = "unknown"
+                      if let <yes <string sl>> = team["slug"] {
+                        var slug = sl
+                      }
+                      let ent = entries(reviewEntries)
+                      let reviewerData = reviewEntries[slug] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
+                      var reviewEntries = mapFrom([
+                        ..ent,
+                        (slug, {
+                          ..reviewerData
+                          timesRequested: reviewerData.timesRequested + 1
+                        }),
+                      ])
                     }
-                    let ent = entries(reviewEntries)
-                    let reviewerData = reviewEntries[slug] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
-                    var reviewEntries = mapFrom([
-                      ..ent,
-                      (slug, {
-                        ..reviewerData
-                        timesRequested: reviewerData.timesRequested + 1
-                      }),
-                    ])
                   }
                 }
-              }
-            } else {
-              if let <yes <array requestedReviewers>> = pullData["requested_reviewers"] {
-                for (possibleReviewer in requestedReviewers) {
-                  if let <object reviewer> = possibleReviewer {
-                    let login = "unknown"
-                    if let <yes <string log>> = reviewer["login"] {
-                      var login = log
-                    }
-                    let ent = entries(reviewEntries)
-                    let reviewerData = reviewEntries[login] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
-                    var reviewEntries = mapFrom([
-                      ..ent,
-                      (login, {
-                        ..reviewerData
-                        timesRequested: reviewerData.timesRequested + 1
-                      }),
-                    ])
-                  } 
+              } else {
+                if let <yes <array requestedReviewers>> = pullData["requested_reviewers"] {
+                  for (possibleReviewer in requestedReviewers) {
+                    if let <object reviewer> = possibleReviewer {
+                      let login = "unknown"
+                      if let <yes <string log>> = reviewer["login"] {
+                        var login = log
+                      }
+                      let ent = entries(reviewEntries)
+                      let reviewerData = reviewEntries[login] |> default({ timesRequested: 0; timesResponded: 0; averageResponseTime: 0; })
+                      var reviewEntries = mapFrom([
+                        ..ent,
+                        (login, {
+                          ..reviewerData
+                          timesRequested: reviewerData.timesRequested + 1
+                        }),
+                      ])
+                    } 
+                  }
                 }
               }
             }
@@ -169,7 +172,11 @@ let pub aggregateData = [config:utils.configData] -> cmd[()] {
               }
             }
             if pullData["merged_at"] == yes(json.null) {
-              var numOpen = numOpen + 1
+              if pullData["closed_at"] == yes(json.null) {
+                var numOpen = numOpen + 1
+              } else {
+                var numClosed = numClosed + 1
+              }
             } else {
               var numMerged = numMerged + 1
             }
@@ -211,6 +218,7 @@ let pub aggregateData = [config:utils.configData] -> cmd[()] {
         ("open", json.number(toFloat(numOpen))),
         ("merged", json.number(toFloat(numMerged))),
         ("draft", json.number(toFloat(numDraft))),
+        ("closed", json.number(toFloat(numClosed))),
       ]))),
       ("diffs", json.object(mapFrom([
         ("additions", json.number(toFloat(overallAdditions))),
